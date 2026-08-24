@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CarFront, Edit, Plus, Power, Search, Trash2, X } from "lucide-react";
+import { CarFront, Edit, Plus, Power, Search, X } from "lucide-react";
 import { toast } from "react-toastify";
 
 import api from "../../services/api";
@@ -21,18 +21,74 @@ const AdminCars = () => {
   const [form, setForm] = useState(emptyCar);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+
+  // Backend filtering/search/sorting
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("ALL");
+  const [status, setStatus] = useState("ALL");
+  const [isActive, setIsActive] = useState("ALL");
+
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDir, setSortDir] = useState("desc");
+
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchCars();
-  }, []);
+  }, [page, search, category, status, isActive, sortBy, sortDir]);
 
   const fetchCars = async () => {
     try {
-      const response = await api.get("/cars");
-      setCars(response.data?.data || []);
+      setLoading(true);
+
+      const params = {
+        page,
+        size,
+        sortBy,
+        sortDir,
+      };
+
+      if (search.trim()) {
+        params.search = search.trim();
+      }
+
+      if (category !== "ALL") {
+        params.category = category;
+      }
+
+      if (status !== "ALL") {
+        params.status = status;
+      }
+
+      if (isActive !== "ALL") {
+        params.isActive = isActive === "true";
+      }
+
+      const response = await api.get("/cars", {
+        params,
+      });
+
+      const data = response.data?.data;
+
+      setCars(data?.content || []);
+      setTotalPages(data?.totalPages || 0);
+      setTotalElements(data?.totalElements || 0);
     } catch (error) {
+      console.error("Fetch cars error:", error);
+
       toast.error(error.response?.data?.message || "Unable to load cars");
+
+      setCars([]);
+      setTotalPages(0);
+      setTotalElements(0);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,6 +149,10 @@ const AdminCars = () => {
       }
 
       setShowForm(false);
+
+      // Return to first page after creating/updating
+      setPage(0);
+
       fetchCars();
     } catch (error) {
       toast.error(error.response?.data?.message || "Unable to save car");
@@ -115,10 +175,10 @@ const AdminCars = () => {
     }
   };
 
-  const updateStatus = async (car, status) => {
+  const updateStatus = async (car, newStatus) => {
     try {
       await api.put(`/cars/${car.id}/status`, null, {
-        params: { status },
+        params: { status: newStatus },
       });
 
       toast.success("Car status updated");
@@ -129,15 +189,60 @@ const AdminCars = () => {
     }
   };
 
-  const filteredCars = cars.filter((car) => {
-    const value = search.toLowerCase();
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setPage(0);
+  };
 
-    return (
-      car.name?.toLowerCase().includes(value) ||
-      car.category?.toLowerCase().includes(value) ||
-      car.registrationNumber?.toLowerCase().includes(value)
-    );
-  });
+  const handleCategoryChange = (e) => {
+    setCategory(e.target.value);
+    setPage(0);
+  };
+
+  const handleStatusChange = (e) => {
+    setStatus(e.target.value);
+    setPage(0);
+  };
+
+  const handleActiveChange = (e) => {
+    setIsActive(e.target.value);
+    setPage(0);
+  };
+
+  const handleSortChange = (e) => {
+    const value = e.target.value;
+
+    if (value === "priceLow") {
+      setSortBy("pricePerDay");
+      setSortDir("asc");
+    } else if (value === "priceHigh") {
+      setSortBy("pricePerDay");
+      setSortDir("desc");
+    } else if (value === "nameAsc") {
+      setSortBy("name");
+      setSortDir("asc");
+    } else if (value === "nameDesc") {
+      setSortBy("name");
+      setSortDir("desc");
+    } else {
+      setSortBy("createdAt");
+      setSortDir("desc");
+    }
+
+    setPage(0);
+  };
+
+  const handlePreviousPage = () => {
+    if (page > 0) {
+      setPage((previous) => previous - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages - 1) {
+      setPage((previous) => previous + 1);
+    }
+  };
 
   return (
     <div>
@@ -159,16 +264,81 @@ const AdminCars = () => {
         </button>
       </div>
 
+      {/* Search and Filters */}
       <div className="bg-white rounded-xl shadow p-4 mb-6">
-        <div className="relative max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+          {/* Search */}
+          <div className="relative xl:col-span-2">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
 
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search cars..."
-            className="w-full pl-11 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none"
-          />
+            <input
+              value={search}
+              onChange={handleSearchChange}
+              placeholder="Search cars..."
+              className="w-full pl-11 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none"
+            />
+          </div>
+
+          {/* Category */}
+          <select
+            value={category}
+            onChange={handleCategoryChange}
+            className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none"
+          >
+            <option value="ALL">All Categories</option>
+
+            <option value="SEDAN">SEDAN</option>
+            <option value="SUV">SUV</option>
+            <option value="HATCHBACK">HATCHBACK</option>
+            <option value="LUXURY">LUXURY</option>
+          </select>
+
+          {/* Status */}
+          <select
+            value={status}
+            onChange={handleStatusChange}
+            className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none"
+          >
+            <option value="ALL">All Status</option>
+            <option value="AVAILABLE">AVAILABLE</option>
+            <option value="BOOKED">BOOKED</option>
+            <option value="IN_USE">IN_USE</option>
+            <option value="CHARGING">CHARGING</option>
+            <option value="MAINTENANCE">MAINTENANCE</option>
+            <option value="INACTIVE">INACTIVE</option>
+          </select>
+
+          {/* Active */}
+          <select
+            value={isActive}
+            onChange={handleActiveChange}
+            className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none"
+          >
+            <option value="ALL">All Cars</option>
+            <option value="true">Active Only</option>
+            <option value="false">Inactive Only</option>
+          </select>
+        </div>
+
+        {/* Sorting */}
+        <div className="mt-4 flex flex-col sm:flex-row gap-4">
+          <select
+            defaultValue="latest"
+            onChange={handleSortChange}
+            className="w-full sm:w-64 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none"
+          >
+            <option value="latest">Latest</option>
+            <option value="priceLow">Price: Low to High</option>
+            <option value="priceHigh">Price: High to Low</option>
+            <option value="nameAsc">Name: A to Z</option>
+            <option value="nameDesc">Name: Z to A</option>
+          </select>
+
+          <div className="flex items-center text-sm text-gray-500">
+            {loading
+              ? "Loading cars..."
+              : `${totalElements} car${totalElements !== 1 ? "s" : ""} found`}
+          </div>
         </div>
       </div>
 
@@ -277,94 +447,134 @@ const AdminCars = () => {
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {filteredCars.map((car) => (
-          <div
-            key={car.id}
-            className="bg-white rounded-2xl shadow overflow-hidden"
-          >
-            <div className="h-40 bg-gradient-to-br from-green-100 to-blue-50 flex items-center justify-center">
-              {car.imageUrl ? (
-                <img
-                  src={car.imageUrl}
-                  alt={car.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <CarFront className="w-20 h-20 text-green-600" />
-              )}
-            </div>
-
-            <div className="p-5">
-              <div className="flex justify-between gap-3">
-                <div>
-                  <h3 className="font-bold text-lg">{car.name}</h3>
-
-                  <p className="text-green-600">{car.category}</p>
+      {/* Cars */}
+      {loading ? (
+        <div className="bg-white rounded-2xl shadow p-10 text-center text-gray-500">
+          Loading cars...
+        </div>
+      ) : cars.length === 0 ? (
+        <div className="bg-white rounded-2xl shadow p-10 text-center text-gray-500">
+          No cars found.
+        </div>
+      ) : (
+        <>
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {cars.map((car) => (
+              <div
+                key={car.id}
+                className="bg-white rounded-2xl shadow overflow-hidden"
+              >
+                <div className="h-40 bg-gradient-to-br from-green-100 to-blue-50 flex items-center justify-center">
+                  {car.imageUrl ? (
+                    <img
+                      src={car.imageUrl}
+                      alt={car.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <CarFront className="w-20 h-20 text-green-600" />
+                  )}
                 </div>
 
-                <span className="text-xs px-3 py-1 h-fit rounded-full bg-green-100 text-green-700">
-                  {car.status}
-                </span>
+                <div className="p-5">
+                  <div className="flex justify-between gap-3">
+                    <div>
+                      <h3 className="font-bold text-lg">{car.name}</h3>
+
+                      <p className="text-green-600">{car.category}</p>
+                    </div>
+
+                    <span className="text-xs px-3 py-1 h-fit rounded-full bg-green-100 text-green-700">
+                      {car.status}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mt-5 text-sm">
+                    <p>
+                      Battery:
+                      <b> {car.batteryLevel}%</b>
+                    </p>
+
+                    <p>
+                      Range:
+                      <b> {car.rangeKm} km</b>
+                    </p>
+
+                    <p>
+                      Price:
+                      <b> ₹{car.pricePerDay}</b>
+                    </p>
+
+                    <p>
+                      Location:
+                      <b> {car.locationId}</b>
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2 mt-5">
+                    <button
+                      onClick={() => openEdit(car)}
+                      className="flex-1 bg-green-50 text-green-700 py-2 rounded-lg flex justify-center gap-2"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => changeActive(car)}
+                      className="px-4 bg-gray-100 rounded-lg"
+                      title="Activate / Deactivate"
+                    >
+                      <Power className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <select
+                    value={car.status || ""}
+                    onChange={(e) => updateStatus(car, e.target.value)}
+                    className="w-full mt-3 border rounded-lg px-3 py-2"
+                  >
+                    <option value="">Update status</option>
+                    <option value="AVAILABLE">AVAILABLE</option>
+                    <option value="BOOKED">BOOKED</option>
+                    <option value="IN_USE">IN_USE</option>
+                    <option value="CHARGING">CHARGING</option>
+                    <option value="MAINTENANCE">MAINTENANCE</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                  </select>
+                </div>
               </div>
-
-              <div className="grid grid-cols-2 gap-3 mt-5 text-sm">
-                <p>
-                  Battery:
-                  <b> {car.batteryLevel}%</b>
-                </p>
-
-                <p>
-                  Range:
-                  <b> {car.rangeKm} km</b>
-                </p>
-
-                <p>
-                  Price:
-                  <b> ₹{car.pricePerDay}</b>
-                </p>
-
-                <p>
-                  Location:
-                  <b> {car.locationId}</b>
-                </p>
-              </div>
-
-              <div className="flex gap-2 mt-5">
-                <button
-                  onClick={() => openEdit(car)}
-                  className="flex-1 bg-green-50 text-green-700 py-2 rounded-lg flex justify-center gap-2"
-                >
-                  <Edit className="w-4 h-4" />
-                  Edit
-                </button>
-
-                <button
-                  onClick={() => changeActive(car)}
-                  className="px-4 bg-gray-100 rounded-lg"
-                  title="Activate / Deactivate"
-                >
-                  <Power className="w-4 h-4" />
-                </button>
-              </div>
-
-              <select
-                value={car.status || ""}
-                onChange={(e) => updateStatus(car, e.target.value)}
-                className="w-full mt-3 border rounded-lg px-3 py-2"
-              >
-                <option value="">Update status</option>
-                <option value="AVAILABLE">AVAILABLE</option>
-                <option value="BOOKED">BOOKED</option>
-                <option value="IN_USE">IN_USE</option>
-                <option value="CHARGING">CHARGING</option>
-                <option value="MAINTENANCE">MAINTENANCE</option>
-                <option value="INACTIVE">INACTIVE</option>
-              </select>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 mt-8 mb-4">
+              <button
+                type="button"
+                onClick={handlePreviousPage}
+                disabled={page === 0 || loading}
+                className="px-5 py-2.5 rounded-full border border-green-600 text-green-700 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-green-50"
+              >
+                Previous
+              </button>
+
+              <span className="text-sm font-medium text-gray-600">
+                Page {page + 1} of {totalPages}
+              </span>
+
+              <button
+                type="button"
+                onClick={handleNextPage}
+                disabled={page >= totalPages - 1 || loading}
+                className="px-5 py-2.5 rounded-full bg-green-600 text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-green-700"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

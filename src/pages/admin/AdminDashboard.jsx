@@ -59,7 +59,6 @@ ChartJS.register(
   BarElement,
   ArcElement,
   Tooltip,
-
   Legend
 );
 
@@ -79,21 +78,47 @@ const DashboardOverview = () => {
   const fetchDashboardData = async () => {
     try {
       const [carsResponse, usersResponse, bookingsResponse] = await Promise.all(
-        [api.get("/cars"), api.get("/users"), api.get("/bookings")]
+        [
+          api.get("/cars", {
+            params: {
+              page: 0,
+              size: 100,
+              sortBy: "createdAt",
+              sortDir: "desc",
+            },
+          }),
+
+          api.get("/users", {
+            params: {
+              page: 0,
+              size: 100,
+              sortBy: "createdAt",
+              sortDir: "desc",
+            },
+          }),
+
+          api.get("/bookings", {
+            params: {
+              page: 0,
+              size: 100,
+              sortBy: "createdAt",
+              sortDir: "desc",
+            },
+          }),
+        ]
       );
 
-      setCars(carsResponse.data?.data || []);
+      setCars(carsResponse.data?.data?.content || []);
 
-      setUsers(usersResponse.data?.data || []);
+      setUsers(usersResponse.data?.data?.content || []);
 
-      setBookings(bookingsResponse.data?.data || []);
+      setBookings(bookingsResponse.data?.data?.content || []);
     } catch (error) {
       console.error("Dashboard error:", error);
     } finally {
       setLoading(false);
     }
   };
-
   const revenue = bookings.reduce(
     (total, booking) => total + Number(booking.totalAmount || 0),
     0
@@ -138,6 +163,7 @@ const DashboardOverview = () => {
     datasets: [
       {
         label: "Cars",
+
         data: [
           cars.filter((c) => c.status === "AVAILABLE").length,
 
@@ -241,6 +267,7 @@ const DashboardOverview = () => {
             data={carStatusData}
             options={{
               responsive: true,
+
               plugins: {
                 legend: {
                   display: false,
@@ -408,6 +435,7 @@ const AdminDashboard = () => {
             label="Coupons"
             onClick={() => navigate("/admin/coupons")}
           />
+
           <MenuItem
             active={isActiveTab("/locations")}
             icon={<FaMapMarkerAlt />}
@@ -473,6 +501,7 @@ const AdminDashboard = () => {
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
+
               <div className="ml-4">
                 <button
                   type="button"

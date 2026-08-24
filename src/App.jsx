@@ -25,14 +25,14 @@ import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import AdminRoute from "./utils/AdminRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import LocationsPage from "./pages/LocationsPage";
 
 import { Routes, Route } from "react-router-dom";
+import OAuth2CallbackPage from "./pages/OAuth2CallbackPage";
 
 function App() {
   return (
     <Routes>
-     
-
       <Route path="/" element={<HomePage />} />
 
       <Route path="/login" element={<LoginPage />} />
@@ -50,9 +50,11 @@ function App() {
 
       <Route path="/reset-password" element={<ResetPasswordPage />} />
 
+      <Route path="/oauth2/callback" element={<OAuth2CallbackPage />} />
+
+      <Route path="/locations" element={<LocationsPage />} />
 
       <Route element={<ProtectedRoute />}>
-
         <Route path="/profile" element={<UserProfilePage />} />
 
         <Route path="/users/:id" element={<UserProfilePage />} />
@@ -71,7 +73,6 @@ function App() {
 
         <Route path="/invoices/booking/:bookingId" element={<InvoicePage />} />
 
-
         <Route path="/change-password" element={<ChangePasswordPage />} />
 
         <Route path="/change-email" element={<ChangeEmailPage />} />
@@ -81,7 +82,6 @@ function App() {
           element={<VerifyEmailChangeOtpPage />}
         />
         <Route path="/profile" element={<ProfilePage />} />
-
 
         <Route element={<AdminRoute />}>
           <Route path="/admin/*" element={<AdminDashboard />} />

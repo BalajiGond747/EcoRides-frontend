@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   CreditCard,
   Search,
@@ -10,29 +10,66 @@ import {
   IndianRupee,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { getAllPayments } from "../../services/payment";
+import api from "../../services/api";
 
 const AdminPaymentsPage = () => {
   const [payments, setPayments] = useState([]);
+
   const [loading, setLoading] = useState(true);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState("ALL");
+
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDir, setSortDir] = useState("desc");
+
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
   const fetchPayments = async () => {
     try {
       setLoading(true);
 
-      const response = await getAllPayments();
+      const params = {
+        page,
+        size,
+        sortBy,
+        sortDir,
+      };
 
-      if (response?.success) {
-        setPayments(response.data || []);
-      } else {
-        toast.error(response?.message || "Failed to fetch payments");
+      if (searchTerm.trim()) {
+        params.search = searchTerm.trim();
       }
+
+      if (statusFilter !== "ALL") {
+        params.status = statusFilter;
+      }
+
+      if (paymentMethodFilter !== "ALL") {
+        params.paymentMethod = paymentMethodFilter;
+      }
+
+      const response = await api.get("/payments", {
+        params,
+      });
+
+      const data = response.data?.data;
+
+      setPayments(data?.content || []);
+      setTotalPages(data?.totalPages || 0);
+      setTotalElements(data?.totalElements || 0);
     } catch (error) {
       console.error("Failed to fetch payments:", error);
 
       toast.error(error?.response?.data?.message || "Unable to load payments");
+
+      setPayments([]);
+      setTotalPages(0);
+      setTotalElements(0);
     } finally {
       setLoading(false);
     }
@@ -40,61 +77,98 @@ const AdminPaymentsPage = () => {
 
   useEffect(() => {
     fetchPayments();
-  }, []);
+  }, [page, searchTerm, statusFilter, paymentMethodFilter, sortBy, sortDir]);
 
-  const filteredPayments = useMemo(() => {
-    return payments.filter((payment) => {
-      const matchesStatus =
-        statusFilter === "ALL" || payment.status === statusFilter;
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setPage(0);
+  };
 
-      const search = searchTerm.toLowerCase();
+  const handleStatusChange = (e) => {
+    setStatusFilter(e.target.value);
+    setPage(0);
+  };
 
-      const matchesSearch =
-        !search ||
-        String(payment.id || "").includes(search) ||
-        String(payment.bookingId || "").includes(search) ||
-        String(payment.razorpayOrderId || "")
-          .toLowerCase()
-          .includes(search) ||
-        String(payment.razorpayPaymentId || "")
-          .toLowerCase()
-          .includes(search);
+  const handlePaymentMethodChange = (e) => {
+    setPaymentMethodFilter(e.target.value);
+    setPage(0);
+  };
 
-      return matchesStatus && matchesSearch;
-    });
-  }, [payments, searchTerm, statusFilter]);
+  const handleSortChange = (e) => {
+    const value = e.target.value;
 
-  const statistics = useMemo(() => {
-    const successfulPayments = payments.filter(
-      (payment) => payment.status === "SUCCESS"
-    );
+    if (value === "latest") {
+      setSortBy("createdAt");
+      setSortDir("desc");
+    } else if (value === "oldest") {
+      setSortBy("createdAt");
+      setSortDir("asc");
+    } else if (value === "amountLow") {
+      setSortBy("amount");
+      setSortDir("asc");
+    } else if (value === "amountHigh") {
+      setSortBy("amount");
+      setSortDir("desc");
+    } else if (value === "statusAsc") {
+      setSortBy("status");
+      setSortDir("asc");
+    } else if (value === "statusDesc") {
+      setSortBy("status");
+      setSortDir("desc");
+    } else {
+      setSortBy("createdAt");
+      setSortDir("desc");
+    }
 
-    const pendingPayments = payments.filter(
-      (payment) => payment.status === "PENDING"
-    );
+    setPage(0);
+  };
 
-    const failedPayments = payments.filter(
-      (payment) => payment.status === "FAILED"
-    );
+  const handlePreviousPage = () => {
+    if (page > 0) {
+      setPage((previous) => previous - 1);
+    }
+  };
 
-    const refundedPayments = payments.filter(
-      (payment) => payment.status === "REFUNDED"
-    );
+  const handleNextPage = () => {
+    if (page < totalPages - 1) {
+      setPage((previous) => previous + 1);
+    }
+  };
 
-    const totalRevenue = successfulPayments.reduce(
-      (total, payment) => total + Number(payment.amount || 0),
-      0
-    );
+  /*
+   * Statistics are calculated only from the currently loaded page.
+   *
+   * This keeps the existing dashboard behavior without adding
+   * another backend statistics endpoint at this stage.
+   */
+  const successfulPayments = payments.filter(
+    (payment) => payment.status === "SUCCESS"
+  );
 
-    return {
-      total: payments.length,
-      successful: successfulPayments.length,
-      pending: pendingPayments.length,
-      failed: failedPayments.length,
-      refunded: refundedPayments.length,
-      revenue: totalRevenue,
-    };
-  }, [payments]);
+  const pendingPayments = payments.filter(
+    (payment) => payment.status === "PENDING"
+  );
+
+  const failedPayments = payments.filter(
+    (payment) => payment.status === "FAILED"
+  );
+
+  const refundedPayments = payments.filter(
+    (payment) => payment.status === "REFUNDED"
+  );
+
+  const totalRevenue = successfulPayments.reduce(
+    (total, payment) => total + Number(payment.amount || 0),
+    0
+  );
+
+  const statistics = {
+    successful: successfulPayments.length,
+    pending: pendingPayments.length,
+    failed: failedPayments.length,
+    refunded: refundedPayments.length,
+    revenue: totalRevenue,
+  };
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -179,7 +253,7 @@ const AdminPaymentsPage = () => {
           <p className="text-sm text-gray-500">Total Payments</p>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-1">
-            {statistics.total}
+            {totalElements}
           </h2>
         </div>
 
@@ -220,16 +294,16 @@ const AdminPaymentsPage = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Search */}
-          <div className="relative flex-1">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
 
             <input
               type="text"
-              placeholder="Search payment, booking or Razorpay ID..."
+              placeholder="Search payment or Razorpay ID..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
@@ -237,7 +311,7 @@ const AdminPaymentsPage = () => {
           {/* Status */}
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={handleStatusChange}
             className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             <option value="ALL">All Status</option>
@@ -245,6 +319,35 @@ const AdminPaymentsPage = () => {
             <option value="PENDING">Pending</option>
             <option value="FAILED">Failed</option>
             <option value="REFUNDED">Refunded</option>
+          </select>
+
+          {/* Payment Method */}
+          <select
+            value={paymentMethodFilter}
+            onChange={handlePaymentMethodChange}
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="ALL">All Methods</option>
+            <option value="RAZORPAY">Razorpay</option>
+          </select>
+
+          {/* Sort */}
+          <select
+            defaultValue="latest"
+            onChange={handleSortChange}
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="latest">Latest Payments</option>
+
+            <option value="oldest">Oldest Payments</option>
+
+            <option value="amountLow">Amount: Low to High</option>
+
+            <option value="amountHigh">Amount: High to Low</option>
+
+            <option value="statusAsc">Status: A to Z</option>
+
+            <option value="statusDesc">Status: Z to A</option>
           </select>
         </div>
       </div>
@@ -255,7 +358,7 @@ const AdminPaymentsPage = () => {
           <div className="flex items-center justify-center py-16">
             <RefreshCw className="w-8 h-8 text-green-600 animate-spin" />
           </div>
-        ) : filteredPayments.length === 0 ? (
+        ) : payments.length === 0 ? (
           <div className="text-center py-16">
             <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-3" />
 
@@ -303,7 +406,7 @@ const AdminPaymentsPage = () => {
               </thead>
 
               <tbody className="divide-y">
-                {filteredPayments.map((payment) => (
+                {payments.map((payment) => (
                   <tr key={payment.id} className="hover:bg-gray-50 transition">
                     <td className="px-5 py-4 font-medium text-gray-900">
                       #{payment.id}
@@ -328,6 +431,7 @@ const AdminPaymentsPage = () => {
                         )}`}
                       >
                         {getStatusIcon(payment.status)}
+
                         {payment.status || "UNKNOWN"}
                       </span>
                     </td>
@@ -349,10 +453,36 @@ const AdminPaymentsPage = () => {
         )}
       </div>
 
-      {/* Result count */}
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <button
+            type="button"
+            onClick={handlePreviousPage}
+            disabled={page === 0 || loading}
+            className="px-5 py-2.5 rounded-full border border-green-600 text-green-700 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-green-50"
+          >
+            Previous
+          </button>
+
+          <span className="text-sm font-medium text-gray-600">
+            Page {page + 1} of {totalPages}
+          </span>
+
+          <button
+            type="button"
+            onClick={handleNextPage}
+            disabled={page >= totalPages - 1 || loading}
+            className="px-5 py-2.5 rounded-full bg-green-600 text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-green-700"
+          >
+            Next
+          </button>
+        </div>
+      )}
+
       {!loading && (
         <div className="mt-4 text-sm text-gray-500">
-          Showing {filteredPayments.length} of {payments.length} payments
+          Showing {payments.length} of {totalElements} payments
         </div>
       )}
     </div>

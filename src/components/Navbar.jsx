@@ -167,7 +167,7 @@ const Navbar = () => {
                                   overflow-hidden"
                   >
                     <Link
-                      to={`/profile/${currentUser.userId}`}
+                      to="/profile"
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3
                                  px-4 py-3

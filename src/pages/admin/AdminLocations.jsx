@@ -9,6 +9,7 @@ import {
   FaSave,
   FaTimes,
 } from "react-icons/fa";
+import { Search } from "lucide-react";
 import api from "../../services/api";
 
 const initialForm = {
@@ -32,20 +33,62 @@ const AdminLocations = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  
+  // Search / filters
+  const [search, setSearch] = useState("");
+  const [city, setCity] = useState("");
+  const [isActive, setIsActive] = useState("ALL");
+
+  // Sorting
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDir, setSortDir] = useState("desc");
+
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
   const fetchLocations = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await api.get("/locations");
+      const params = {
+        page,
+        size,
+        sortBy,
+        sortDir,
+      };
 
-      setLocations(response.data?.data || []);
+      if (search.trim()) {
+        params.search = search.trim();
+      }
+
+      if (city.trim()) {
+        params.city = city.trim();
+      }
+
+      if (isActive !== "ALL") {
+        params.isActive = isActive === "true";
+      }
+
+      const response = await api.get("/locations", {
+        params,
+      });
+
+      const data = response.data?.data;
+
+      setLocations(data?.content || []);
+      setTotalPages(data?.totalPages || 0);
+      setTotalElements(data?.totalElements || 0);
     } catch (err) {
       console.error("Fetch locations error:", err);
 
       setError(err.response?.data?.message || "Failed to load locations.");
+
+      setLocations([]);
+      setTotalPages(0);
+      setTotalElements(0);
     } finally {
       setLoading(false);
     }
@@ -53,9 +96,7 @@ const AdminLocations = () => {
 
   useEffect(() => {
     fetchLocations();
-  }, []);
-
-  
+  }, [page, search, city, isActive, sortBy, sortDir]);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -66,14 +107,11 @@ const AdminLocations = () => {
     }));
   };
 
-
   const resetForm = () => {
     setForm(initialForm);
     setEditingId(null);
     setError("");
   };
-
-  
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -81,7 +119,6 @@ const AdminLocations = () => {
     setError("");
     setSuccess("");
 
-    
     if (
       !form.name.trim() ||
       !form.city.trim() ||
@@ -122,6 +159,8 @@ const AdminLocations = () => {
 
       resetForm();
 
+      setPage(0);
+
       await fetchLocations();
     } catch (err) {
       console.error("Save location error:", err);
@@ -131,8 +170,6 @@ const AdminLocations = () => {
       setSaving(false);
     }
   };
-
-  
 
   const handleEdit = (location) => {
     setEditingId(location.id);
@@ -155,7 +192,6 @@ const AdminLocations = () => {
     });
   };
 
-  
   const handleToggleStatus = async (location) => {
     setError("");
     setSuccess("");
@@ -181,7 +217,58 @@ const AdminLocations = () => {
     }
   };
 
-  
+  const handleSearchChange = (event) => {
+    setSearch(event.target.value);
+    setPage(0);
+  };
+
+  const handleCityChange = (event) => {
+    setCity(event.target.value);
+    setPage(0);
+  };
+
+  const handleActiveChange = (event) => {
+    setIsActive(event.target.value);
+    setPage(0);
+  };
+
+  const handleSortChange = (event) => {
+    const value = event.target.value;
+
+    if (value === "nameAsc") {
+      setSortBy("name");
+      setSortDir("asc");
+    } else if (value === "nameDesc") {
+      setSortBy("name");
+      setSortDir("desc");
+    } else if (value === "cityAsc") {
+      setSortBy("city");
+      setSortDir("asc");
+    } else if (value === "cityDesc") {
+      setSortBy("city");
+      setSortDir("desc");
+    } else if (value === "oldest") {
+      setSortBy("createdAt");
+      setSortDir("asc");
+    } else {
+      setSortBy("createdAt");
+      setSortDir("desc");
+    }
+
+    setPage(0);
+  };
+
+  const handlePreviousPage = () => {
+    if (page > 0) {
+      setPage((previous) => previous - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages - 1) {
+      setPage((previous) => previous + 1);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -385,6 +472,64 @@ const AdminLocations = () => {
         </form>
       </div>
 
+      {/* SEARCH / FILTERS */}
+      <div className="bg-white rounded-xl shadow p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* SEARCH */}
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+
+            <input
+              value={search}
+              onChange={handleSearchChange}
+              placeholder="Search locations..."
+              className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+
+          {/* CITY */}
+          <input
+            value={city}
+            onChange={handleCityChange}
+            placeholder="Filter by city..."
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+
+          {/* ACTIVE */}
+          <select
+            value={isActive}
+            onChange={handleActiveChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="ALL">All Locations</option>
+            <option value="true">Active Only</option>
+            <option value="false">Inactive Only</option>
+          </select>
+
+          {/* SORT */}
+          <select
+            defaultValue="latest"
+            onChange={handleSortChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="latest">Latest</option>
+            <option value="oldest">Oldest</option>
+            <option value="nameAsc">Name: A to Z</option>
+            <option value="nameDesc">Name: Z to A</option>
+            <option value="cityAsc">City: A to Z</option>
+            <option value="cityDesc">City: Z to A</option>
+          </select>
+        </div>
+
+        <div className="mt-4 text-sm text-gray-500">
+          {loading
+            ? "Loading locations..."
+            : `${totalElements} location${
+                totalElements !== 1 ? "s" : ""
+              } found`}
+        </div>
+      </div>
+
       {/* LOCATION LIST */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <div className="p-6 border-b border-gray-200">
@@ -393,8 +538,8 @@ const AdminLocations = () => {
               <h3 className="text-lg font-semibold text-gray-800">Locations</h3>
 
               <p className="text-sm text-gray-500 mt-1">
-                {locations.length} location
-                {locations.length !== 1 ? "s" : ""}
+                {totalElements} location
+                {totalElements !== 1 ? "s" : ""}
               </p>
             </div>
 
@@ -419,7 +564,7 @@ const AdminLocations = () => {
             </h4>
 
             <p className="text-gray-500 mt-1">
-              Add your first EcoRide location above.
+              Try changing your search or filters.
             </p>
           </div>
         )}
@@ -544,6 +689,33 @@ const AdminLocations = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 p-6 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={handlePreviousPage}
+              disabled={page === 0 || loading}
+              className="px-5 py-2.5 rounded-full border border-green-600 text-green-700 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-green-50"
+            >
+              Previous
+            </button>
+
+            <span className="text-sm font-medium text-gray-600">
+              Page {page + 1} of {totalPages}
+            </span>
+
+            <button
+              type="button"
+              onClick={handleNextPage}
+              disabled={page >= totalPages - 1 || loading}
+              className="px-5 py-2.5 rounded-full bg-green-600 text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-green-700"
+            >
+              Next
+            </button>
           </div>
         )}
       </div>

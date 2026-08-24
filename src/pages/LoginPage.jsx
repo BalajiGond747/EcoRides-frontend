@@ -58,7 +58,6 @@ const LoginPage = () => {
         return;
       }
 
-     
       setToken(authData.token);
 
       setCurrentUser({
@@ -206,6 +205,55 @@ const LoginPage = () => {
                 </>
               )}
             </button>
+            {/* Google Login */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-emerald-100" />
+              </div>
+
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-3 text-gray-500">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            <a
+              href="http://localhost:8080/oauth2/authorization/google"
+              className="w-full border border-emerald-400
+             py-3 rounded-full
+             font-semibold text-gray-700
+             bg-white
+             hover:bg-emerald-100
+             hover:border-emerald-400
+             transition
+             flex items-center justify-center gap-3
+             shadow-sm hover:shadow-md"
+            >
+              {/* Google Icon */}
+              <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="#4285F4"
+                  d="M21.35 12.27c0-.78-.07-1.53-.2-2.27H12v4.3h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.15c1.84-1.69 2.9-4.18 2.9-7.42z"
+                />
+
+                <path
+                  fill="#34A853"
+                  d="M12 21.5c2.63 0 4.84-.87 6.45-2.35l-3.15-2.45c-.87.58-1.98.93-3.3.93-2.54 0-4.7-1.72-5.47-4.03H3.28v2.53A9.75 9.75 0 0 0 12 21.5z"
+                />
+
+                <path
+                  fill="#FBBC05"
+                  d="M6.53 13.6A5.86 5.86 0 0 1 6.22 12c0-.56.1-1.1.31-1.6V7.87H3.28A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.03 4.13l3.25-2.53z"
+                />
+
+                <path
+                  fill="#EA4335"
+                  d="M12 6.38c1.43 0 2.72.49 3.73 1.45l2.8-2.8C16.84 3.42 14.63 2.5 12 2.5a9.75 9.75 0 0 0-8.72 5.37l3.25 2.53 3.25 2.53C7.3 8.1 9.46 6.38 12 6.38z"
+                />
+              </svg>
+              Continue with Google
+            </a>
           </form>
 
           {/* Register */}
