@@ -27,8 +27,6 @@ const PaymentPage = () => {
 
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
- 
-
   const createPaymentOrder = async () => {
     if (!bookingId) {
       toast.error("Booking ID is missing.");
@@ -63,8 +61,6 @@ const PaymentPage = () => {
       setLoading(false);
     }
   };
-
-  
 
   const openRazorpayCheckout = (paymentData) => {
     if (!window.Razorpay) {
@@ -102,8 +98,6 @@ const PaymentPage = () => {
 
       handler: function (response) {
         console.log("Razorpay payment response:", response);
-
-       
 
         setPaymentResponse(response);
 
@@ -143,8 +137,6 @@ const PaymentPage = () => {
 
     razorpay.open();
   };
-
-  
 
   const verifyRazorpayPayment = async (paymentData, razorpayResponse) => {
     if (!paymentData) {
@@ -204,8 +196,6 @@ const PaymentPage = () => {
 
       toast.success(response.data?.message || "Payment verified successfully!");
 
-     
-
       setTimeout(() => {
         navigate(`/bookings/${bookingId}`);
       }, 1500);
@@ -220,8 +210,6 @@ const PaymentPage = () => {
     }
   };
 
- 
-
   const handleManualVerify = async () => {
     if (!payment || !paymentResponse) {
       toast.error("Complete the Razorpay payment first.");
@@ -232,13 +220,10 @@ const PaymentPage = () => {
     await verifyRazorpayPayment(payment, paymentResponse);
   };
 
-  
-
   return (
     <PageShell>
       <main className="flex-grow px-4 py-10">
         <div className="max-w-xl mx-auto">
-          {/* Back */}
           <Link
             to={`/bookings/${bookingId}`}
             className="inline-flex items-center gap-2 text-emerald-600 font-semibold mb-6 hover:text-emerald-700"
@@ -247,14 +232,11 @@ const PaymentPage = () => {
             Back to Booking
           </Link>
 
-          {/* Payment Card */}
           <div className="bg-white rounded-3xl shadow-xl border border-emerald-100 p-7">
-            {/* Icon */}
             <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto">
               <CreditCard className="w-8 h-8 text-emerald-600" />
             </div>
 
-            {/* Title */}
             <h1 className="text-2xl font-bold text-center mt-5">
               Complete Payment
             </h1>
@@ -263,7 +245,6 @@ const PaymentPage = () => {
               Booking #{bookingId}
             </p>
 
-            {/* Explanation */}
             <div className="mt-7 bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
               <div className="flex items-start gap-3">
                 <ShieldCheck className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
@@ -282,10 +263,8 @@ const PaymentPage = () => {
               </div>
             </div>
 
-            {/* Payment Details */}
             {payment && (
               <div className="mt-7 space-y-5">
-                {/* Amount */}
                 <div>
                   <p className="text-sm text-gray-500">Amount</p>
 
@@ -294,7 +273,6 @@ const PaymentPage = () => {
                   </p>
                 </div>
 
-                {/* Razorpay Order */}
                 <div className="bg-gray-50 rounded-2xl p-4">
                   <div className="flex items-start gap-3">
                     <Receipt className="w-5 h-5 text-gray-500 mt-1" />
@@ -311,7 +289,6 @@ const PaymentPage = () => {
               </div>
             )}
 
-            {/* Initial Payment Button */}
             {!payment && !paymentSuccess && (
               <button
                 type="button"
@@ -330,7 +307,6 @@ const PaymentPage = () => {
               </button>
             )}
 
-            {/* Payment Completed */}
             {paymentResponse && !paymentSuccess && (
               <div className="mt-6 bg-green-50 border border-green-200 rounded-2xl p-5">
                 <div className="flex items-center gap-3">
@@ -351,7 +327,6 @@ const PaymentPage = () => {
               </div>
             )}
 
-            {/* Verification Loading */}
             {verifying && (
               <div className="mt-6 bg-blue-50 border border-blue-200 rounded-2xl p-5">
                 <div className="flex items-center justify-center gap-3">
@@ -364,7 +339,6 @@ const PaymentPage = () => {
               </div>
             )}
 
-            {/* Manual Verify */}
             {paymentResponse && !paymentSuccess && !verifying && (
               <button
                 type="button"
@@ -378,7 +352,6 @@ const PaymentPage = () => {
               </button>
             )}
 
-            {/* Success */}
             {paymentSuccess && (
               <div className="mt-7 bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
                 <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto">
@@ -399,7 +372,6 @@ const PaymentPage = () => {
               </div>
             )}
 
-            {/* Footer note */}
             {!paymentSuccess && (
               <p className="text-xs text-gray-400 text-center mt-6">
                 Payments are processed securely through Razorpay.
@@ -411,8 +383,6 @@ const PaymentPage = () => {
     </PageShell>
   );
 };
-
-
 
 const PageShell = ({ children }) => (
   <div className="min-h-screen flex flex-col bg-gradient-to-br from-emerald-50 via-white to-green-50">

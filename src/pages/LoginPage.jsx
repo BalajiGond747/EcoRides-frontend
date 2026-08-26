@@ -92,7 +92,6 @@ const LoginPage = () => {
 
       <section className="flex-grow flex items-center justify-center px-4 py-12 sm:py-16">
         <div className="bg-white shadow-xl rounded-3xl max-w-md w-full p-6 sm:p-8 border border-emerald-100">
-          {/* Header */}
           <div className="flex flex-col items-center justify-center mb-8">
             <div className="flex items-center justify-center w-14 h-14 rounded-full bg-emerald-100 mb-3">
               <Leaf className="w-7 h-7 text-emerald-600" />
@@ -106,7 +105,6 @@ const LoginPage = () => {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -131,7 +129,6 @@ const LoginPage = () => {
               />
             </div>
 
-            {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label
@@ -184,7 +181,6 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Login button */}
             <button
               type="submit"
               disabled={loading}
@@ -205,7 +201,6 @@ const LoginPage = () => {
                 </>
               )}
             </button>
-            {/* Google Login */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-emerald-100" />
@@ -230,7 +225,6 @@ const LoginPage = () => {
              flex items-center justify-center gap-3
              shadow-sm hover:shadow-md"
             >
-              {/* Google Icon */}
               <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   fill="#4285F4"
@@ -256,7 +250,6 @@ const LoginPage = () => {
             </a>
           </form>
 
-          {/* Register */}
           <p className="mt-6 text-gray-600 text-sm text-center">
             Don't have an account?{" "}
             <Link

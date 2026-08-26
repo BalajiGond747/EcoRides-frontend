@@ -30,6 +30,9 @@ import LocationsPage from "./pages/LocationsPage";
 import { Routes, Route } from "react-router-dom";
 import OAuth2CallbackPage from "./pages/OAuth2CallbackPage";
 
+import AdminAdministrators from "./pages/admin/AdminAdministrators";
+import AddAdministrator from "./pages/admin/AddAdministrator";
+
 function App() {
   return (
     <Routes>
@@ -85,6 +88,16 @@ function App() {
 
         <Route element={<AdminRoute />}>
           <Route path="/admin/*" element={<AdminDashboard />} />
+
+          <Route
+            path="/admin/administrators"
+            element={<AdminAdministrators />}
+          />
+
+          <Route
+            path="/admin/administrators/new"
+            element={<AddAdministrator />}
+          />
         </Route>
       </Route>
     </Routes>

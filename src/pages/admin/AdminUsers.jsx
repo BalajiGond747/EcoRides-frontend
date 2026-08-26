@@ -145,7 +145,6 @@ const AdminUsers = () => {
 
       <div className="bg-white rounded-xl shadow p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Search */}
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
 
@@ -157,7 +156,6 @@ const AdminUsers = () => {
             />
           </div>
 
-          {/* Sorting */}
           <select
             defaultValue="latest"
             onChange={handleSortChange}
@@ -278,7 +276,6 @@ const AdminUsers = () => {
         </div>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-4 mt-8">
           <button

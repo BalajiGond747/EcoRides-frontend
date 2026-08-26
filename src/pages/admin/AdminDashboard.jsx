@@ -38,6 +38,8 @@ import {
   Legend,
 } from "chart.js";
 
+import { ChevronDown, LogOut } from "lucide-react";
+
 import api from "../../services/api";
 import { logout } from "../../services/auth";
 
@@ -345,6 +347,7 @@ const DashboardOverview = () => {
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -357,8 +360,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* SIDEBAR */}
-
       <div
         className={`bg-green-800 text-white w-64 flex-shrink-0 transition-all duration-300 ${
           sidebarOpen ? "ml-0" : "-ml-64"
@@ -460,8 +461,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* CONTENT */}
-
       <div className="flex-1 overflow-auto">
         <header className="bg-white shadow-sm">
           <div className="flex items-center justify-between p-4">
@@ -502,18 +501,91 @@ const AdminDashboard = () => {
                 />
               </div>
 
-              <div className="ml-4">
+              <div className="relative ml-4">
                 <button
                   type="button"
-                  onClick={() => navigate("/admin/profile")}
-                  className="h-10 w-10 rounded-full bg-green-600
-               flex items-center justify-center
-               text-white font-semibold
-               hover:bg-green-700 transition"
+                  onClick={() => setProfileOpen((previous) => !previous)}
+                  className="flex items-center gap-2.5
+               px-3 py-2 rounded-full
+               bg-emerald-600
+               border-2 border-white/70
+               text-white
+               shadow-md
+               hover:bg-emerald-500
+               hover:border-white
+               transition-all duration-200"
                   title="Admin Profile"
                 >
-                  <UserCircle className="w-6 h-6" />
+                  <div
+                    className="h-9 w-9 rounded-full
+                 bg-white
+                 border border-emerald-200
+                 flex items-center justify-center
+                 shadow-sm"
+                  >
+                    <UserCircle className="w-6 h-6 text-emerald-600" />
+                  </div>
+
+                  <div className="hidden sm:block text-left">
+                    <p className="text-sm font-semibold leading-tight text-white">
+                      Admin Profile
+                    </p>
+                  </div>
+
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-200 ${
+                      profileOpen ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
+
+                {profileOpen && (
+                  <div
+                    className="absolute right-0 mt-2 w-56
+                 bg-white rounded-2xl
+                 shadow-xl
+                 border border-emerald-100
+                 overflow-hidden z-50"
+                  >
+                    <Link
+                      to="/admin/profile"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-3
+                   px-4 py-3
+                   text-gray-700
+                   hover:bg-emerald-50
+                   transition"
+                    >
+                      <UserCircle className="w-5 h-5 text-emerald-600" />
+
+                      <div>
+                        <p className="font-semibold">My Profile</p>
+
+                        <p className="text-xs text-gray-500">
+                          Administrator account
+                        </p>
+                      </div>
+                    </Link>
+
+                    <div className="border-t border-gray-100" />
+
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3
+                   px-4 py-3
+                   text-red-600
+                   hover:bg-red-50
+                   transition"
+                    >
+                      <LogOut className="w-5 h-5" />
+
+                      <div className="text-left">
+                        <p className="font-semibold">Logout</p>
+                      </div>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

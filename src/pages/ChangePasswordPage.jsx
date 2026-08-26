@@ -98,7 +98,6 @@ const ChangePasswordPage = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Old password */}
             <PasswordField
               label="Current Password"
               name="oldPassword"
@@ -110,7 +109,6 @@ const ChangePasswordPage = () => {
               disabled={loading}
             />
 
-            {/* New password */}
             <PasswordField
               label="New Password"
               name="newPassword"
@@ -122,7 +120,6 @@ const ChangePasswordPage = () => {
               disabled={loading}
             />
 
-            {/* Confirm password */}
             <PasswordField
               label="Confirm New Password"
               name="confirmPassword"

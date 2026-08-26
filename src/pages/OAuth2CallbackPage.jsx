@@ -85,4 +85,4 @@ const OAuth2CallbackPage = () => {
   );
 };
 
-export default OAuth2CallbackPage; 
+export default OAuth2CallbackPage;

@@ -221,7 +221,6 @@ const AdminProfile = () => {
 
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Header */}
       <div
         className="flex flex-col sm:flex-row sm:items-center
                       sm:justify-between gap-4 mb-8"
@@ -249,12 +248,10 @@ const AdminProfile = () => {
         )}
       </div>
 
-      {/* Profile Card */}
       <div
         className="bg-white rounded-3xl shadow-lg
                       border border-green-100 overflow-hidden"
       >
-        {/* Profile Header */}
         <div
           className="bg-gradient-to-r
                         from-green-700 to-emerald-700
@@ -288,12 +285,10 @@ const AdminProfile = () => {
           </div>
         </div>
 
-        {/* Content */}
         <div className="p-6 sm:p-8">
           {editing ? (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {/* First Name */}
                 <div>
                   <label
                     htmlFor="admin-firstName"
@@ -321,7 +316,6 @@ const AdminProfile = () => {
                   />
                 </div>
 
-                {/* Last Name */}
                 <div>
                   <label
                     htmlFor="admin-lastName"
@@ -349,7 +343,6 @@ const AdminProfile = () => {
                   />
                 </div>
 
-                {/* Phone */}
                 <div>
                   <label
                     htmlFor="admin-phone"
@@ -376,7 +369,6 @@ const AdminProfile = () => {
                   />
                 </div>
 
-                {/* Email */}
                 <div>
                   <label
                     className="block text-sm font-semibold
@@ -409,7 +401,6 @@ const AdminProfile = () => {
                 </div>
               </div>
 
-              {/* Address */}
               <div>
                 <label
                   htmlFor="admin-address"
@@ -445,7 +436,6 @@ const AdminProfile = () => {
                 </div>
               </div>
 
-              {/* Form Actions */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   type="submit"
@@ -489,7 +479,6 @@ const AdminProfile = () => {
             </form>
           ) : (
             <div className="space-y-6">
-              {/* Personal Information */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-4">
                   Personal Information
@@ -530,7 +519,6 @@ const AdminProfile = () => {
                 </div>
               </div>
 
-              {/* Account Information */}
               <div className="border-t border-gray-100 pt-6">
                 <h3 className="font-semibold text-gray-900 mb-4">
                   Account Information
@@ -557,7 +545,6 @@ const AdminProfile = () => {
                 </div>
               </div>
 
-              {/* Security */}
               <div className="border-t border-gray-100 pt-6">
                 <h3 className="font-semibold text-gray-900 mb-4">
                   Account Security
@@ -594,7 +581,6 @@ const AdminProfile = () => {
                 </div>
               </div>
 
-              {/* Administration */}
               <div className="border-t border-gray-100 pt-6">
                 <h3 className="font-semibold text-gray-900 mb-4">
                   Administration
@@ -602,7 +588,7 @@ const AdminProfile = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Link
-                    to="/admin/admins"
+                    to="/admin/administrators"
                     className="inline-flex items-center
                                justify-center gap-2
                                px-5 py-3 rounded-full
@@ -615,7 +601,7 @@ const AdminProfile = () => {
                   </Link>
 
                   <Link
-                    to="/admin/admins/new"
+                    to="/admin/administrators/new"
                     className="inline-flex items-center
                                justify-center gap-2
                                px-5 py-3 rounded-full
@@ -630,7 +616,6 @@ const AdminProfile = () => {
                 </div>
               </div>
 
-              {/* Logout */}
               <div className="border-t border-gray-100 pt-6">
                 <button
                   type="button"
@@ -654,9 +639,7 @@ const AdminProfile = () => {
 const ProfileItem = ({ icon, label, value }) => {
   return (
     <div className="bg-gray-50 rounded-2xl p-4">
-      <div
-        className="flex items-center gap-2 text-green-700 mb-2"
-      >
+      <div className="flex items-center gap-2 text-green-700 mb-2">
         {icon}
 
         <span className="text-sm font-semibold">{label}</span>

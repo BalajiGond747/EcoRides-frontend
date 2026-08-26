@@ -63,7 +63,6 @@ const LocationsPage = () => {
 
       <main className="flex-grow px-4 py-10">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 mb-5">
               <MapPin className="w-8 h-8 text-emerald-600" />
@@ -79,7 +78,6 @@ const LocationsPage = () => {
             </p>
           </div>
 
-          {/* Search */}
           <div className="bg-white rounded-2xl shadow-md border border-emerald-100 p-4 mb-8">
             <div className="relative max-w-2xl mx-auto">
               <Search
@@ -101,14 +99,12 @@ const LocationsPage = () => {
             </div>
           </div>
 
-          {/* Loading */}
           {loading && (
             <div className="flex justify-center py-20">
               <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
             </div>
           )}
 
-          {/* Empty */}
           {!loading && filteredLocations.length === 0 && (
             <div className="bg-white rounded-3xl shadow-md p-12 text-center">
               <MapPinned className="w-16 h-16 mx-auto text-gray-300" />
@@ -123,7 +119,6 @@ const LocationsPage = () => {
             </div>
           )}
 
-          {/* Locations */}
           {!loading && filteredLocations.length > 0 && (
             <>
               <div className="mb-5">
@@ -157,7 +152,6 @@ const LocationCard = ({ location }) => {
                  hover:shadow-xl
                  transition"
     >
-      {/* Card Header */}
       <div
         className="h-36 bg-gradient-to-br
                    from-emerald-100
@@ -169,7 +163,6 @@ const LocationCard = ({ location }) => {
         </div>
       </div>
 
-      {/* Card Content */}
       <div className="p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -190,7 +183,6 @@ const LocationCard = ({ location }) => {
           </span>
         </div>
 
-        {/* Address */}
         <div className="flex items-start gap-3 mt-5">
           <MapPinned className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
 
@@ -203,7 +195,6 @@ const LocationCard = ({ location }) => {
           </div>
         </div>
 
-        {/* City */}
         <div className="flex items-center gap-3 mt-4">
           <Building2 className="w-5 h-5 text-emerald-600" />
 
@@ -212,7 +203,6 @@ const LocationCard = ({ location }) => {
           </p>
         </div>
 
-        {/* View Cars */}
         <Link
           to={`/cars?locationId=${location.id}`}
           className="mt-6 w-full

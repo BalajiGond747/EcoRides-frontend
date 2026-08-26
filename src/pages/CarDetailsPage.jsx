@@ -20,6 +20,7 @@ const CarDetailsPage = () => {
   const navigate = useNavigate();
 
   const [car, setCar] = useState(null);
+  const [locationName, setLocationName] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +33,27 @@ const CarDetailsPage = () => {
 
       const response = await api.get(`/cars/${id}`);
 
-      setCar(response.data?.data || null);
+      const carData = response.data?.data || null;
+
+      setCar(carData);
+
+      if (carData?.locationId) {
+        try {
+          const locationResponse = await api.get(
+            `/locations/${carData.locationId}`
+          );
+
+          const locationData = locationResponse.data?.data;
+
+          setLocationName(locationData?.name || "Location unavailable");
+        } catch (locationError) {
+          console.error("Fetch location error:", locationError);
+
+          setLocationName("Location unavailable");
+        }
+      } else {
+        setLocationName("Location unavailable");
+      }
     } catch (error) {
       console.error("Fetch car error:", error);
 
@@ -55,14 +76,22 @@ const CarDetailsPage = () => {
   if (!car) {
     return (
       <PageShell>
-        <div className="flex-grow flex items-center justify-center">
+        <div className="flex-grow flex items-center justify-center px-4">
           <div className="text-center">
-            <h2 className="text-2xl font-bold">Car not found</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Car not found</h2>
+
+            <p className="text-gray-500 mt-2">
+              The car you are looking for is unavailable.
+            </p>
 
             <button
+              type="button"
               onClick={() => navigate("/cars")}
               className="mt-5 px-6 py-3 rounded-full
-                         bg-emerald-600 text-white"
+                         bg-emerald-600 text-white
+                         font-semibold
+                         hover:bg-emerald-700
+                         transition"
             >
               Back to Cars
             </button>
@@ -81,30 +110,43 @@ const CarDetailsPage = () => {
           <Link
             to="/cars"
             className="inline-flex items-center gap-2
-                       text-emerald-600 font-semibold mb-6"
+                       text-emerald-600
+                       font-semibold
+                       mb-6
+                       hover:text-emerald-700
+                       transition"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Cars
           </Link>
 
           <div
-            className="bg-white rounded-3xl shadow-xl
-                          overflow-hidden
-                          border border-emerald-100"
+            className="bg-white rounded-3xl
+                       shadow-xl
+                       overflow-hidden
+                       border border-emerald-100"
           >
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div
                 className="min-h-[350px]
-                              bg-gradient-to-br
-                              from-emerald-100 to-green-50
-                              flex items-center justify-center"
+                           bg-gradient-to-br
+                           from-emerald-100
+                           to-green-50
+                           flex items-center justify-center"
               >
                 {car.imageUrl ? (
                   <img
-                    src={car.imageUrl}
+                    src={
+                      car.imageUrl?.startsWith("http")
+                        ? car.imageUrl
+                        : `http://localhost:8080${car.imageUrl}`
+                    }
                     alt={car.name}
-                    className="w-full h-full min-h-[350px]
-                               object-cover"
+                    className="w-full h-64 object-cover rounded-2xl"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      e.currentTarget.nextElementSibling.style.display = "flex";
+                    }}
                   />
                 ) : (
                   <CarFront className="w-40 h-40 text-emerald-500" />
@@ -114,23 +156,39 @@ const CarDetailsPage = () => {
               <div className="p-8">
                 <div
                   className="flex items-start
-                                justify-between gap-4"
+                             justify-between
+                             gap-4"
                 >
                   <div>
                     <p className="text-emerald-600 font-semibold">
                       {car.category}
                     </p>
 
-                    <h1 className="text-3xl font-bold text-gray-900 mt-1">
+                    <h1
+                      className="text-3xl
+                                 font-bold
+                                 text-gray-900
+                                 mt-1"
+                    >
                       {car.name}
                     </h1>
                   </div>
 
                   <span
-                    className="px-3 py-1 rounded-full
-                                   bg-emerald-100
-                                   text-emerald-700
-                                   text-sm font-semibold"
+                    className={`px-3 py-1
+                                rounded-full
+                                text-sm
+                                font-semibold
+                                whitespace-nowrap
+                                ${
+                                  car.status === "AVAILABLE"
+                                    ? "bg-emerald-100 text-emerald-700"
+                                    : car.status === "MAINTENANCE"
+                                    ? "bg-yellow-100 text-yellow-700"
+                                    : car.status === "INACTIVE"
+                                    ? "bg-gray-100 text-gray-600"
+                                    : "bg-blue-100 text-blue-700"
+                                }`}
                   >
                     {car.status}
                   </span>
@@ -158,14 +216,24 @@ const CarDetailsPage = () => {
                   <Detail
                     icon={<MapPin />}
                     label="Location"
-                    value={car.locationId}
+                    value={locationName || "Loading..."}
                   />
                 </div>
 
-                <div className="border-t border-gray-100 mt-8 pt-6">
+                <div
+                  className="border-t
+                             border-gray-100
+                             mt-8
+                             pt-6"
+                >
                   <p className="text-gray-500">Price per day</p>
 
-                  <p className="text-3xl font-bold text-emerald-600 mt-1">
+                  <p
+                    className="text-3xl
+                               font-bold
+                               text-emerald-600
+                               mt-1"
+                  >
                     ₹{car.pricePerDay}
                   </p>
                 </div>
@@ -173,19 +241,32 @@ const CarDetailsPage = () => {
                 {canBook ? (
                   <Link
                     to={`/bookings/create?carId=${car.id}&locationId=${car.locationId}`}
-                    className="block text-center w-full mt-7
-                               bg-emerald-600 text-white
-                               py-3 rounded-full
-                               font-semibold hover:bg-emerald-700"
+                    className="block
+                               text-center
+                               w-full
+                               mt-7
+                               bg-emerald-600
+                               text-white
+                               py-3
+                               rounded-full
+                               font-semibold
+                               hover:bg-emerald-700
+                               transition"
                   >
                     Book This Car
                   </Link>
                 ) : (
                   <button
+                    type="button"
                     disabled
-                    className="w-full mt-7 bg-gray-300
-                               text-gray-600 py-3 rounded-full
-                               font-semibold cursor-not-allowed"
+                    className="w-full
+                               mt-7
+                               bg-gray-300
+                               text-gray-600
+                               py-3
+                               rounded-full
+                               font-semibold
+                               cursor-not-allowed"
                   >
                     Car Not Available
                   </button>
@@ -200,8 +281,17 @@ const CarDetailsPage = () => {
 };
 
 const Detail = ({ icon, label, value }) => (
-  <div className="bg-gray-50 rounded-2xl p-4">
-    <div className="flex items-center gap-2 text-emerald-600">
+  <div
+    className="bg-gray-50
+               rounded-2xl
+               p-4
+               border border-gray-100"
+  >
+    <div
+      className="flex items-center
+                 gap-2
+                 text-emerald-600"
+    >
       {React.cloneElement(icon, {
         className: "w-5 h-5",
       })}
@@ -209,18 +299,30 @@ const Detail = ({ icon, label, value }) => (
       <span className="text-sm font-semibold">{label}</span>
     </div>
 
-    <p className="text-gray-900 font-medium mt-2">{value}</p>
+    <p
+      className="text-gray-900
+                 font-medium
+                 mt-2
+                 break-words"
+    >
+      {value}
+    </p>
   </div>
 );
 
 const PageShell = ({ children }) => (
   <div
-    className="min-h-screen flex flex-col
-                  bg-gradient-to-br
-                  from-emerald-50 via-white to-green-50"
+    className="min-h-screen
+               flex flex-col
+               bg-gradient-to-br
+               from-emerald-50
+               via-white
+               to-green-50"
   >
     <Navbar />
+
     {children}
+
     <Footer />
   </div>
 );

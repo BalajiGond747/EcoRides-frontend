@@ -171,10 +171,8 @@ const AdminBookings = () => {
         <p className="text-gray-500 mt-1">Monitor and manage all bookings.</p>
       </div>
 
-      {/* Search and Filters */}
       <div className="bg-white rounded-xl shadow p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Search */}
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
 
@@ -186,7 +184,6 @@ const AdminBookings = () => {
             />
           </div>
 
-          {/* Status */}
           <select
             value={status}
             onChange={handleStatusChange}
@@ -200,7 +197,6 @@ const AdminBookings = () => {
             <option value="CANCELLED">CANCELLED</option>
           </select>
 
-          {/* Sorting */}
           <select
             defaultValue="latest"
             onChange={handleSortChange}
@@ -222,21 +218,18 @@ const AdminBookings = () => {
         </div>
       </div>
 
-      {/* Loading */}
       {loading && (
         <div className="bg-white rounded-2xl shadow p-10 text-center text-gray-500">
           Loading bookings...
         </div>
       )}
 
-      {/* Empty */}
       {!loading && bookings.length === 0 && (
         <div className="bg-white rounded-2xl shadow p-10 text-center text-gray-500">
           No bookings found.
         </div>
       )}
 
-      {/* Bookings */}
       {!loading && bookings.length > 0 && (
         <>
           <div className="grid gap-5">
@@ -328,7 +321,6 @@ const AdminBookings = () => {
             ))}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-4 mt-8 mb-4">
               <button

@@ -72,11 +72,7 @@ const CarsPage = () => {
       setTotalPages(paginationData?.totalPages || 0);
       setTotalElements(paginationData?.totalElements || 0);
 
-      /*
-       * Build category options from the currently returned cars.
-       *
-       * This keeps the existing UI simple.
-       */
+      
       if (page === 0 && !search.trim() && category === "ALL") {
         const values = (paginationData?.content || [])
           .map((car) => car.category)
@@ -330,14 +326,18 @@ const CarCard = ({ car }) => {
       >
         {car.imageUrl ? (
           <img
-            src={car.imageUrl}
-            alt={car.name}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-              e.currentTarget.nextElementSibling.style.display = "flex";
-            }}
-          />
+          src={
+            car.imageUrl?.startsWith("http")
+              ? car.imageUrl
+              : `http://localhost:8080${car.imageUrl}`
+          }
+          alt={car.name}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+            e.currentTarget.nextElementSibling.style.display = "flex";
+          }}
+        />
         ) : null}
 
         <div

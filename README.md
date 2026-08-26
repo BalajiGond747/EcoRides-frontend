@@ -13,7 +13,7 @@ EcoRides is a React frontend for an EV rental platform. It provides user and adm
 - React Toastify
 - Razorpay
 
-## Features
+## Features--
 
 ### User
 - Registration and OTP verification

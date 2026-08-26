@@ -13,4 +13,4 @@ export const verifyPayment = async (paymentData) => {
 export const getAllPayments = async () => {
   const response = await api.get("/payments");
   return response.data;
-};
+}; 

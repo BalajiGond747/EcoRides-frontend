@@ -220,7 +220,6 @@ const ProfilePage = () => {
 
       <main className="flex-grow px-4 py-10">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
@@ -246,9 +245,7 @@ const ProfilePage = () => {
             )}
           </div>
 
-          {/* Profile card */}
           <div className="bg-white rounded-3xl shadow-xl border border-emerald-100 overflow-hidden">
-            {/* Profile top */}
             <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 sm:px-8 py-8 text-white">
               <div className="flex items-center gap-5">
                 <div
@@ -277,12 +274,10 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            {/* Profile content */}
             <div className="p-6 sm:p-8">
               {editing ? (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {/* First Name */}
                     <div>
                       <label
                         htmlFor="firstName"
@@ -310,7 +305,6 @@ const ProfilePage = () => {
                       />
                     </div>
 
-                    {/* Last Name */}
                     <div>
                       <label
                         htmlFor="lastName"
@@ -338,7 +332,6 @@ const ProfilePage = () => {
                       />
                     </div>
 
-                    {/* Phone */}
                     <div>
                       <label
                         htmlFor="phone"
@@ -365,7 +358,6 @@ const ProfilePage = () => {
                       />
                     </div>
 
-                    {/* Email - read only */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Email
@@ -396,7 +388,6 @@ const ProfilePage = () => {
                     </div>
                   </div>
 
-                  {/* Address */}
                   <div>
                     <label
                       htmlFor="address"
@@ -432,7 +423,6 @@ const ProfilePage = () => {
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">
                     <button
                       type="submit"
@@ -479,28 +469,24 @@ const ProfilePage = () => {
               ) : (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {/* First name */}
                     <ProfileItem
                       icon={<User className="w-5 h-5" />}
                       label="First Name"
                       value={profile.firstName}
                     />
 
-                    {/* Last name */}
                     <ProfileItem
                       icon={<User className="w-5 h-5" />}
                       label="Last Name"
                       value={profile.lastName}
                     />
 
-                    {/* Email */}
                     <ProfileItem
                       icon={<Mail className="w-5 h-5" />}
                       label="Email"
                       value={profile.email}
                     />
 
-                    {/* Phone */}
                     <ProfileItem
                       icon={<Phone className="w-5 h-5" />}
                       label="Phone"
@@ -508,14 +494,12 @@ const ProfilePage = () => {
                     />
                   </div>
 
-                  {/* Address */}
                   <ProfileItem
                     icon={<MapPin className="w-5 h-5" />}
                     label="Address"
                     value={profile.address}
                   />
 
-                  {/* Account info */}
                   <div className="border-t border-gray-100 pt-6">
                     <h3 className="font-semibold text-gray-900 mb-4">
                       Account Information
@@ -546,7 +530,6 @@ const ProfilePage = () => {
                     </div>
                   </div>
 
-                  {/* Account actions */}
                   <div className="border-t border-gray-100 pt-6">
                     <h3 className="font-semibold text-gray-900 mb-4">
                       Account Security

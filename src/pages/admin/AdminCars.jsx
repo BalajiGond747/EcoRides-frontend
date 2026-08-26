@@ -13,7 +13,6 @@ const emptyCar = {
   rangeKm: "",
   locationId: "",
   seatingCapacity: "",
-  imageUrl: "",
 };
 
 const AdminCars = () => {
@@ -22,7 +21,9 @@ const AdminCars = () => {
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  // Backend filtering/search/sorting
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("ALL");
   const [status, setStatus] = useState("ALL");
@@ -31,13 +32,13 @@ const AdminCars = () => {
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortDir, setSortDir] = useState("desc");
 
-  // Pagination
   const [page, setPage] = useState(0);
-  const [size] = useState(10);
+  const [size] = useState(9);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
 
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchCars();
@@ -102,6 +103,10 @@ const AdminCars = () => {
   const openCreate = () => {
     setForm(emptyCar);
     setEditingId(null);
+
+    setImageFile(null);
+    setImagePreview("");
+
     setShowForm(true);
   };
 
@@ -117,45 +122,125 @@ const AdminCars = () => {
       rangeKm: car.rangeKm || "",
       locationId: car.locationId || "",
       seatingCapacity: car.seatingCapacity || "",
-      imageUrl: car.imageUrl || "",
     });
 
+    setImageFile(null);
+
+    setImagePreview(car.imageUrl || "");
+
     setShowForm(true);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Only JPG, PNG or WebP images are allowed");
+
+      e.target.value = "";
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      toast.error("Image must be smaller than 5 MB");
+
+      e.target.value = "";
+      return;
+    }
+
+    if (imagePreview && imagePreview.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+
+    setImageFile(file);
+    setImagePreview(previewUrl);
+  };
+
+  const closeForm = () => {
+    if (imagePreview && imagePreview.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setShowForm(false);
+    setEditingId(null);
+    setForm(emptyCar);
+    setImageFile(null);
+    setImagePreview("");
   };
 
   const submit = async (e) => {
     e.preventDefault();
 
+    if (!editingId && !imageFile) {
+      toast.error("Please select a car image");
+      return;
+    }
+
     try {
-      const payload = {
+      setSaving(true);
+
+      const carData = {
         ...form,
+
         pricePerDay: Number(form.pricePerDay),
+
         batteryLevel: Number(form.batteryLevel),
+
         rangeKm: Number(form.rangeKm),
+
         locationId: Number(form.locationId),
+
         seatingCapacity: form.seatingCapacity
           ? Number(form.seatingCapacity)
           : null,
       };
 
+      delete carData.imageUrl;
+
+      const formData = new FormData();
+
+      formData.append(
+        "car",
+        new Blob([JSON.stringify(carData)], {
+          type: "application/json",
+        })
+      );
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
       if (editingId) {
-        await api.put(`/cars/${editingId}`, payload);
+        await api.put(`/cars/${editingId}`, formData);
 
         toast.success("Car updated successfully");
       } else {
-        await api.post("/cars", payload);
+        await api.post("/cars", formData);
 
         toast.success("Car created successfully");
       }
 
-      setShowForm(false);
+      closeForm();
 
-      // Return to first page after creating/updating
       setPage(0);
 
       fetchCars();
     } catch (error) {
+      console.error("Save car error:", error);
+
       toast.error(error.response?.data?.message || "Unable to save car");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -178,7 +263,9 @@ const AdminCars = () => {
   const updateStatus = async (car, newStatus) => {
     try {
       await api.put(`/cars/${car.id}/status`, null, {
-        params: { status: newStatus },
+        params: {
+          status: newStatus,
+        },
       });
 
       toast.success("Car status updated");
@@ -244,6 +331,16 @@ const AdminCars = () => {
     }
   };
 
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return "";
+
+    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+      return imageUrl;
+    }
+
+    return `http://localhost:8080${imageUrl}`;
+  };
+
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
@@ -264,10 +361,8 @@ const AdminCars = () => {
         </button>
       </div>
 
-      {/* Search and Filters */}
       <div className="bg-white rounded-xl shadow p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-          {/* Search */}
           <div className="relative xl:col-span-2">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
 
@@ -279,7 +374,6 @@ const AdminCars = () => {
             />
           </div>
 
-          {/* Category */}
           <select
             value={category}
             onChange={handleCategoryChange}
@@ -288,39 +382,47 @@ const AdminCars = () => {
             <option value="ALL">All Categories</option>
 
             <option value="SEDAN">SEDAN</option>
+
             <option value="SUV">SUV</option>
+
             <option value="HATCHBACK">HATCHBACK</option>
+
             <option value="LUXURY">LUXURY</option>
           </select>
 
-          {/* Status */}
           <select
             value={status}
             onChange={handleStatusChange}
             className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none"
           >
             <option value="ALL">All Status</option>
+
             <option value="AVAILABLE">AVAILABLE</option>
+
             <option value="BOOKED">BOOKED</option>
+
             <option value="IN_USE">IN_USE</option>
+
             <option value="CHARGING">CHARGING</option>
+
             <option value="MAINTENANCE">MAINTENANCE</option>
+
             <option value="INACTIVE">INACTIVE</option>
           </select>
 
-          {/* Active */}
           <select
             value={isActive}
             onChange={handleActiveChange}
             className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none"
           >
             <option value="ALL">All Cars</option>
+
             <option value="true">Active Only</option>
+
             <option value="false">Inactive Only</option>
           </select>
         </div>
 
-        {/* Sorting */}
         <div className="mt-4 flex flex-col sm:flex-row gap-4">
           <select
             defaultValue="latest"
@@ -328,9 +430,13 @@ const AdminCars = () => {
             className="w-full sm:w-64 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none"
           >
             <option value="latest">Latest</option>
+
             <option value="priceLow">Price: Low to High</option>
+
             <option value="priceHigh">Price: High to Low</option>
+
             <option value="nameAsc">Name: A to Z</option>
+
             <option value="nameDesc">Name: Z to A</option>
           </select>
 
@@ -350,7 +456,7 @@ const AdminCars = () => {
                 {editingId ? "Edit Car" : "Add New Car"}
               </h3>
 
-              <button onClick={() => setShowForm(false)}>
+              <button type="button" onClick={closeForm}>
                 <X />
               </button>
             </div>
@@ -418,26 +524,57 @@ const AdminCars = () => {
               />
 
               <div className="md:col-span-2">
-                <Input
-                  label="Image URL"
-                  name="imageUrl"
-                  value={form.imageUrl}
-                  onChange={handleChange}
+                <label className="block text-sm font-semibold mb-2">
+                  Car Image
+                </label>
+
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImageChange}
+                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none"
                 />
+
+                <p className="text-xs text-gray-500 mt-2">
+                  JPG, PNG or WebP. Maximum 5 MB.
+                </p>
+
+                {editingId && !imageFile && imagePreview && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    Current image is being used. Select a new file only if you
+                    want to replace it.
+                  </p>
+                )}
+
+                {imagePreview && (
+                  <div className="mt-4">
+                    <img
+                      src={imagePreview}
+                      alt="Car preview"
+                      className="w-full h-48 object-cover rounded-xl border"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="md:col-span-2 flex gap-3">
                 <button
                   type="submit"
-                  className="flex-1 bg-green-600 text-white py-3 rounded-full font-semibold"
+                  disabled={saving}
+                  className="flex-1 bg-green-600 text-white py-3 rounded-full font-semibold disabled:bg-green-300"
                 >
-                  {editingId ? "Update Car" : "Create Car"}
+                  {saving
+                    ? "Saving..."
+                    : editingId
+                    ? "Update Car"
+                    : "Create Car"}
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-6 py-3 rounded-full bg-gray-100"
+                  onClick={closeForm}
+                  disabled={saving}
+                  className="px-6 py-3 rounded-full bg-gray-100 disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -447,7 +584,6 @@ const AdminCars = () => {
         </div>
       )}
 
-      {/* Cars */}
       {loading ? (
         <div className="bg-white rounded-2xl shadow p-10 text-center text-gray-500">
           Loading cars...
@@ -467,9 +603,23 @@ const AdminCars = () => {
                 <div className="h-40 bg-gradient-to-br from-green-100 to-blue-50 flex items-center justify-center">
                   {car.imageUrl ? (
                     <img
-                      src={car.imageUrl}
+                      src={getImageUrl(car.imageUrl)}
                       alt={car.name}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error("Car image failed:", {
+                          imageUrl: car.imageUrl,
+                          resolvedUrl: getImageUrl(car.imageUrl),
+                        });
+                      }}
+                      onLoad={() => {
+                        console.log(
+                          "Car image loaded:",
+                          getImageUrl(car.imageUrl)
+                        );
+                      }}
                     />
                   ) : (
                     <CarFront className="w-20 h-20 text-green-600" />
@@ -535,11 +685,17 @@ const AdminCars = () => {
                     className="w-full mt-3 border rounded-lg px-3 py-2"
                   >
                     <option value="">Update status</option>
+
                     <option value="AVAILABLE">AVAILABLE</option>
+
                     <option value="BOOKED">BOOKED</option>
+
                     <option value="IN_USE">IN_USE</option>
+
                     <option value="CHARGING">CHARGING</option>
+
                     <option value="MAINTENANCE">MAINTENANCE</option>
+
                     <option value="INACTIVE">INACTIVE</option>
                   </select>
                 </div>
@@ -547,7 +703,6 @@ const AdminCars = () => {
             ))}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-4 mt-8 mb-4">
               <button

@@ -17,16 +17,13 @@ const AdminCoupons = () => {
     isActive: true,
   });
 
-  // Search / filters
   const [search, setSearch] = useState("");
   const [type, setType] = useState("ALL");
   const [isActive, setIsActive] = useState("ALL");
 
-  // Sorting
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortDir, setSortDir] = useState("desc");
 
-  // Pagination
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
@@ -202,10 +199,8 @@ const AdminCoupons = () => {
         </button>
       </div>
 
-      {/* Search / Filters */}
       <div className="bg-white rounded-xl shadow p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Search */}
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
 
@@ -217,7 +212,6 @@ const AdminCoupons = () => {
             />
           </div>
 
-          {/* Type */}
           <select
             value={type}
             onChange={handleTypeChange}
@@ -228,7 +222,6 @@ const AdminCoupons = () => {
             <option value="FLAT">Flat</option>
           </select>
 
-          {/* Active */}
           <select
             value={isActive}
             onChange={handleActiveChange}
@@ -239,7 +232,6 @@ const AdminCoupons = () => {
             <option value="false">Inactive Only</option>
           </select>
 
-          {/* Sort */}
           <select
             defaultValue="latest"
             onChange={handleSortChange}
@@ -348,7 +340,6 @@ const AdminCoupons = () => {
         </div>
       )}
 
-      {/* Coupons */}
       {loading ? (
         <div className="bg-white rounded-2xl shadow p-10 text-center text-gray-500">
           Loading coupons...
@@ -399,7 +390,6 @@ const AdminCoupons = () => {
             ))}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-4 mt-8 mb-4">
               <button

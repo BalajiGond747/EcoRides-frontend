@@ -75,27 +75,48 @@ const MyBookingsPage = () => {
             <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
 
             <p className="text-gray-500 mt-2">
-              View and manage your rental bookings.
+              View and manage your EcoRides rentals.
             </p>
           </div>
 
           {loading && (
             <div className="flex justify-center py-20">
-              <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
+              <Loader2
+                className="w-10 h-10
+                           text-emerald-600
+                           animate-spin"
+              />
             </div>
           )}
 
           {!loading && bookings.length === 0 && (
-            <div className="bg-white rounded-3xl shadow-md p-12 text-center">
-              <CalendarDays className="w-14 h-14 mx-auto text-gray-300" />
+            <div
+              className="bg-white rounded-3xl
+                         shadow-md
+                         border border-emerald-100
+                         p-12 text-center"
+            >
+              <CalendarDays
+                className="w-14 h-14
+                           mx-auto
+                           text-gray-300"
+              />
 
               <h2 className="text-xl font-bold mt-4">No bookings yet</h2>
 
+              <p className="text-gray-500 mt-2">
+                Find an available car and start your rental.
+              </p>
+
               <Link
                 to="/cars"
-                className="inline-block mt-5 px-6 py-3
-                           rounded-full bg-emerald-600
-                           text-white font-semibold"
+                className="inline-block mt-5
+                           px-6 py-3
+                           rounded-full
+                           bg-emerald-600
+                           text-white
+                           font-semibold
+                           hover:bg-emerald-700"
               >
                 Browse Cars
               </Link>
@@ -125,69 +146,107 @@ const BookingCard = ({ booking, onCancel }) => {
 
   return (
     <div
-      className="bg-white rounded-3xl shadow-md
-                    border border-emerald-100 p-6"
+      className="bg-white rounded-3xl
+                 shadow-md
+                 border border-emerald-100
+                 p-6"
     >
       <div
-        className="flex flex-col lg:flex-row
-                      lg:items-center lg:justify-between
-                      gap-5"
+        className="flex flex-col
+                   lg:flex-row
+                   lg:items-center
+                   lg:justify-between
+                   gap-5"
       >
         <div className="flex items-start gap-4">
           <div
-            className="w-14 h-14 rounded-2xl
-                          bg-emerald-100
-                          flex items-center justify-center
-                          shrink-0"
+            className="w-14 h-14
+                       rounded-2xl
+                       bg-emerald-100
+                       flex items-center
+                       justify-center
+                       shrink-0"
           >
-            <CarFront className="w-7 h-7 text-emerald-600" />
+            <CarFront
+              className="w-7 h-7
+                         text-emerald-600"
+            />
           </div>
 
           <div>
-            <h2 className="font-bold text-lg">
-              Booking #{booking.bookingReference || booking.id}
+            <h2 className="font-bold text-lg text-gray-900">
+              {booking.carName || `Car #${booking.carId}`}
             </h2>
 
             <p className="text-gray-500 text-sm mt-1">
-              Car ID: {booking.carId}
+              Booking #{booking.bookingReference || booking.id}
             </p>
 
             <p
-              className="flex items-center gap-1
-                          text-gray-500 text-sm mt-2"
+              className="flex items-center
+                         gap-1
+                         text-gray-500
+                         text-sm
+                         mt-2"
             >
               <MapPin className="w-4 h-4" />
-              Location {booking.locationId}
+
+              {booking.locationName || `Location ${booking.locationId}`}
             </p>
           </div>
         </div>
 
         <span
-          className={`px-4 py-2 rounded-full
-                          font-semibold text-sm
-                          self-start lg:self-auto
-                          ${getStatusClass(booking.status)}`}
+          className={`px-4 py-2
+                      rounded-full
+                      font-semibold
+                      text-sm
+                      self-start
+                      lg:self-auto
+                      ${getStatusClass(booking.status)}`}
         >
           {booking.status}
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+      <div
+        className="grid
+                   grid-cols-1
+                   sm:grid-cols-3
+                   gap-4
+                   mt-6"
+      >
         <DateItem label="Start" value={formatDate(booking.startTime)} />
 
         <DateItem label="End" value={formatDate(booking.endTime)} />
+
+        <DateItem
+          label="Rental Days"
+          value={`${booking.rentalDays || 1} day${
+            (booking.rentalDays || 1) > 1 ? "s" : ""
+          }`}
+        />
       </div>
 
       <div
-        className="flex flex-col sm:flex-row
-                      sm:items-center sm:justify-between
-                      gap-4 border-t border-gray-100
-                      mt-6 pt-5"
+        className="flex flex-col
+                   sm:flex-row
+                   sm:items-center
+                   sm:justify-between
+                   gap-4
+                   border-t
+                   border-gray-100
+                   mt-6
+                   pt-5"
       >
         <div>
           <p className="text-sm text-gray-500">Total Amount</p>
 
-          <p className="text-xl font-bold text-emerald-600">
+          <p
+            className="text-xl
+                       font-bold
+                       text-emerald-600"
+          >
             ₹{booking.totalAmount ?? "—"}
           </p>
         </div>
@@ -195,10 +254,15 @@ const BookingCard = ({ booking, onCancel }) => {
         <div className="flex gap-3 flex-wrap">
           <Link
             to={`/bookings/${booking.id}`}
-            className="inline-flex items-center gap-2
-                       px-5 py-2.5 rounded-full
-                       bg-emerald-600 text-white
-                       font-semibold hover:bg-emerald-700"
+            className="inline-flex
+                       items-center
+                       gap-2
+                       px-5 py-2.5
+                       rounded-full
+                       bg-emerald-600
+                       text-white
+                       font-semibold
+                       hover:bg-emerald-700"
           >
             <Eye className="w-4 h-4" />
             View
@@ -206,11 +270,16 @@ const BookingCard = ({ booking, onCancel }) => {
 
           {canCancel && (
             <button
+              type="button"
               onClick={() => onCancel(booking.id)}
-              className="inline-flex items-center gap-2
-                         px-5 py-2.5 rounded-full
+              className="inline-flex
+                         items-center
+                         gap-2
+                         px-5 py-2.5
+                         rounded-full
                          border border-red-300
-                         text-red-600 font-semibold
+                         text-red-600
+                         font-semibold
                          hover:bg-red-50"
             >
               <XCircle className="w-4 h-4" />
@@ -224,10 +293,21 @@ const BookingCard = ({ booking, onCancel }) => {
 };
 
 const DateItem = ({ label, value }) => (
-  <div className="bg-gray-50 rounded-2xl p-4">
-    <p className="text-xs text-gray-500 uppercase font-semibold">{label}</p>
+  <div
+    className="bg-gray-50
+               rounded-2xl
+               p-4"
+  >
+    <p
+      className="text-xs
+                 text-gray-500
+                 uppercase
+                 font-semibold"
+    >
+      {label}
+    </p>
 
-    <p className="text-gray-900 mt-1">{value}</p>
+    <p className="text-gray-900 mt-1 font-medium">{value}</p>
   </div>
 );
 
@@ -254,19 +334,29 @@ const getStatusClass = (status) => {
 };
 
 const formatDate = (value) => {
-  if (!value) return "—";
+  if (!value) {
+    return "—";
+  }
 
-  return new Date(value).toLocaleString();
+  return new Date(value).toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 };
 
 const PageShell = ({ children }) => (
   <div
-    className="min-h-screen flex flex-col
-                  bg-gradient-to-br
-                  from-emerald-50 via-white to-green-50"
+    className="min-h-screen
+               flex flex-col
+               bg-gradient-to-br
+               from-emerald-50
+               via-white
+               to-green-50"
   >
     <Navbar />
+
     {children}
+
     <Footer />
   </div>
 );

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { ArrowLeft, CalendarDays, CarFront, Loader2 } from "lucide-react";
+import { ArrowLeft, CalendarDays, CarFront, Loader2, Tag } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import api from "../services/api";
@@ -18,7 +17,9 @@ const CreateBookingPage = () => {
   const locationId = searchParams.get("locationId");
 
   const [car, setCar] = useState(null);
+  const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingCoupons, setLoadingCoupons] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -35,10 +36,13 @@ const CreateBookingPage = () => {
     }
 
     fetchCar();
+    fetchCoupons();
   }, [carId]);
 
   const fetchCar = async () => {
     try {
+      setLoading(true);
+
       const response = await api.get(`/cars/${carId}`);
 
       setCar(response.data?.data);
@@ -51,11 +55,44 @@ const CreateBookingPage = () => {
     }
   };
 
+  const fetchCoupons = async () => {
+    try {
+      setLoadingCoupons(true);
+
+      const response = await api.get("/coupons", {
+        params: {
+          page: 0,
+          size: 100,
+          isActive: true,
+        },
+      });
+
+      const data = response.data?.data;
+      const activeCoupons = Array.isArray(data) ? data : data?.content || [];
+
+      setCoupons(activeCoupons);
+    } catch (error) {
+      console.error("Unable to load coupons:", error);
+      setCoupons([]);
+    } finally {
+      setLoadingCoupons(false);
+    }
+  };
+
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  const handleCouponSelect = (code) => {
+    setFormData((prev) => ({
+      ...prev,
+      couponCode: code,
+    }));
+
+    toast.success(`Coupon ${code} selected`);
   };
 
   const handleSubmit = async (e) => {
@@ -183,24 +220,117 @@ const CreateBookingPage = () => {
                   <span className="text-gray-400 font-normal"> (optional)</span>
                 </label>
 
-                <input
-                  type="text"
-                  name="couponCode"
-                  value={formData.couponCode}
-                  onChange={handleChange}
-                  maxLength={50}
-                  placeholder="Enter coupon code"
-                  disabled={submitting}
-                  className="w-full px-4 py-3 rounded-xl
-                             border border-gray-300
-                             focus:outline-none
-                             focus:ring-2 focus:ring-emerald-500"
-                />
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="text"
+                    name="couponCode"
+                    value={formData.couponCode}
+                    onChange={handleChange}
+                    maxLength={50}
+                    placeholder="Enter coupon code"
+                    disabled={submitting}
+                    className="flex-1 px-4 py-3 rounded-xl
+                               border border-gray-300
+                               focus:outline-none
+                               focus:ring-2 focus:ring-emerald-500"
+                  />
+
+                  {formData.couponCode && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, couponCode: "" }))
+                      }
+                      disabled={submitting}
+                      className="px-5 py-3 rounded-xl
+                                 border border-gray-300
+                                 text-gray-600 font-semibold
+                                 hover:bg-gray-50
+                                 disabled:opacity-50"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
 
                 <p className="text-xs text-gray-500 mt-2">
-                  The booking service will validate the coupon.
+                  Choose an available offer below or enter a coupon code
+                  manually.
                 </p>
               </div>
+
+              {loadingCoupons ? (
+                <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
+                  <div className="flex items-center gap-2 text-sm text-emerald-700">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading available offers...
+                  </div>
+                </div>
+              ) : coupons.length > 0 ? (
+                <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
+                  <div className="flex items-center gap-2 text-emerald-700">
+                    <Tag className="w-5 h-5" />
+                    <h2 className="font-bold">Available Offers</h2>
+                  </div>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    Select an offer and it will be added to your coupon code.
+                  </p>
+
+                  <div className="mt-4 space-y-3">
+                    {coupons.map((coupon) => {
+                      const isSelected = formData.couponCode === coupon.code;
+                      const isPercentage = coupon.type === "PERCENTAGE";
+                      const value = Number(coupon.value || 0);
+
+                      return (
+                        <div
+                          key={coupon.code}
+                          className={`flex flex-col gap-3 rounded-xl border bg-white p-4 sm:flex-row sm:items-center sm:justify-between ${
+                            isSelected
+                              ? "border-emerald-500 ring-2 ring-emerald-100"
+                              : "border-gray-200"
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center gap-3">
+                              <span className="font-black text-gray-900">
+                                {coupon.code}
+                              </span>
+
+                              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700">
+                                {isPercentage
+                                  ? `${value}% OFF`
+                                  : `₹${value.toLocaleString("en-IN")} OFF`}
+                              </span>
+                            </div>
+
+                            {coupon.expiryDate && (
+                              <p className="mt-1 text-xs text-gray-500">
+                                Valid until{" "}
+                                {formatCouponDate(coupon.expiryDate)}
+                              </p>
+                            )}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleCouponSelect(coupon.code)}
+                            disabled={submitting}
+                            className={`shrink-0 rounded-lg px-4 py-2 text-sm font-bold transition ${
+                              isSelected
+                                ? "bg-emerald-600 text-white"
+                                : "border border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                            } disabled:opacity-50`}
+                          >
+                            {isSelected ? "Selected" : "Use Coupon"}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
 
               <button
                 type="submit"
@@ -258,6 +388,18 @@ const DateInput = ({ label, name, value, onChange, disabled }) => (
 
 const formatLocalDateTime = (value) => {
   return value.length === 16 ? `${value}:00` : value;
+};
+
+const formatCouponDate = (value) => {
+  if (!value) {
+    return "—";
+  }
+
+  return new Date(`${value}T00:00:00`).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 };
 
 const PageShell = ({ children }) => (

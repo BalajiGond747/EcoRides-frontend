@@ -25,7 +25,6 @@ const RegisterPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  
   useEffect(() => {
     const verified = location.state?.verified;
     const registrationData = location.state?.registrationData;
@@ -123,7 +122,6 @@ const RegisterPage = () => {
 
       <section className="flex-grow flex items-center justify-center px-4 py-12 sm:py-16">
         <div className="bg-white shadow-xl rounded-3xl max-w-lg w-full p-6 sm:p-8 border border-emerald-100">
-          {/* Header */}
           <div className="flex flex-col items-center justify-center mb-8">
             <div className="flex items-center justify-center w-14 h-14 rounded-full bg-emerald-100 mb-3">
               <Leaf className="w-7 h-7 text-emerald-600" />
@@ -139,7 +137,6 @@ const RegisterPage = () => {
           </div>
 
           <form onSubmit={handleRegister} className="space-y-4">
-            {/* First + Last Name */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label
@@ -194,7 +191,6 @@ const RegisterPage = () => {
               </div>
             </div>
 
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -219,7 +215,6 @@ const RegisterPage = () => {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -262,7 +257,6 @@ const RegisterPage = () => {
               </div>
             </div>
 
-            {/* Confirm Password */}
             <div>
               <label
                 htmlFor="confirmPassword"
@@ -305,7 +299,6 @@ const RegisterPage = () => {
               </div>
             </div>
 
-            {/* Phone */}
             <div>
               <label
                 htmlFor="phone"
@@ -339,7 +332,6 @@ const RegisterPage = () => {
               />
             </div>
 
-            {/* Address */}
             <div>
               <label
                 htmlFor="address"
@@ -366,7 +358,6 @@ const RegisterPage = () => {
               />
             </div>
 
-            {/* Register */}
             <button
               type="submit"
               disabled={loading}

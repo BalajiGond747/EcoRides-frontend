@@ -3,7 +3,6 @@ import { jwtDecode } from "jwt-decode";
 const TOKEN_KEY = "token";
 const USER_KEY = "currentUser";
 
-
 export const setToken = (token) => {
   if (!token) {
     return;
@@ -100,7 +99,6 @@ export const isUser = () => {
 
   return user?.userRole === "USER";
 };
-
 
 export const logout = () => {
   removeToken();

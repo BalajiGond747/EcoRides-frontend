@@ -55,8 +55,8 @@ const Navbar = () => {
   return (
     <nav
       className="bg-gradient-to-r
-                    from-emerald-600
-                    to-emerald-700
+                    from-emerald-800
+                    to-emerald-900
                     shadow-md sticky top-0
                     z-50 w-full"
     >
@@ -65,7 +65,7 @@ const Navbar = () => {
                       flex items-center
                       justify-between gap-4"
       >
-        {/* Logo */}
+       
 
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <Leaf className="w-7 h-7 text-white" />
@@ -73,7 +73,7 @@ const Navbar = () => {
           <span className="text-2xl font-bold text-white">EcoRides</span>
         </Link>
 
-        {/* Navigation */}
+        
 
         <div className="flex items-center gap-3">
           {!currentUser && (
@@ -81,7 +81,7 @@ const Navbar = () => {
               <Link
                 to="/login"
                 className="px-5 py-2 rounded-full
-                           bg-white/10 text-white
+                           bg-white/10 text-white 
                            font-semibold
                            hover:bg-white/20 transition"
               >

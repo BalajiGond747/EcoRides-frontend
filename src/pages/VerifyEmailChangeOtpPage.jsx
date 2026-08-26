@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { ArrowRight, KeyRound, Leaf, Loader2 } from "lucide-react";
+import { ArrowRight, KeyRound, Loader2 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import api from "../services/api";
+import { logout } from "../services/auth";
 
 const VerifyEmailChangeOtpPage = () => {
   const navigate = useNavigate();
@@ -74,14 +75,16 @@ const VerifyEmailChangeOtpPage = () => {
         changeResponse.data?.message || "Email updated successfully"
       );
 
-      navigate("/", { replace: true });
+      setTimeout(() => {
+        logout();
+      }, 1000);
     } catch (error) {
       console.error("Email change verification error:", error);
 
       toast.error(
         error.response?.data?.message || "Unable to verify email change"
       );
-    } finally {
+
       setLoading(false);
     }
   };
@@ -96,6 +99,8 @@ const VerifyEmailChangeOtpPage = () => {
 
       toast.success(response.data?.message || "OTP sent again");
     } catch (error) {
+      console.error("Resend email change OTP error:", error);
+
       toast.error(error.response?.data?.message || "Unable to resend OTP");
     } finally {
       setResending(false);
@@ -169,8 +174,9 @@ const VerifyEmailChangeOtpPage = () => {
           <button
             type="button"
             onClick={handleResend}
-            disabled={resending}
-            className="w-full mt-4 text-emerald-600 font-semibold hover:underline disabled:text-gray-400"
+            disabled={resending || loading}
+            className="w-full mt-4 text-emerald-600 font-semibold
+                       hover:underline disabled:text-gray-400"
           >
             {resending ? "Sending..." : "Didn't receive OTP? Resend"}
           </button>

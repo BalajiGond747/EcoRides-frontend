@@ -33,16 +33,13 @@ const AdminLocations = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Search / filters
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("");
   const [isActive, setIsActive] = useState("ALL");
 
-  // Sorting
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortDir, setSortDir] = useState("desc");
 
-  // Pagination
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
@@ -272,7 +269,6 @@ const AdminLocations = () => {
 
   return (
     <div className="space-y-6">
-      {/* PAGE HEADER */}
       <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow p-6 text-white">
         <div className="flex items-center gap-4">
           <div className="bg-white/20 p-3 rounded-full">
@@ -289,7 +285,6 @@ const AdminLocations = () => {
         </div>
       </div>
 
-      {/* SUCCESS MESSAGE */}
       {success && (
         <div className="flex items-center gap-3 bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-lg">
           <FaCheckCircle />
@@ -297,7 +292,6 @@ const AdminLocations = () => {
         </div>
       )}
 
-      {/* ERROR MESSAGE */}
       {error && (
         <div className="flex items-center gap-3 bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg">
           <FaTimesCircle />
@@ -305,7 +299,6 @@ const AdminLocations = () => {
         </div>
       )}
 
-      {/* ADD / EDIT FORM */}
       <div className="bg-white rounded-xl shadow p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -346,7 +339,6 @@ const AdminLocations = () => {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-5"
         >
-          {/* NAME */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Location Name *
@@ -357,13 +349,11 @@ const AdminLocations = () => {
               name="name"
               value={form.name}
               onChange={handleChange}
-              placeholder="EcoRide Hyderabad Central"
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
               required
             />
           </div>
 
-          {/* CITY */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               City *
@@ -374,13 +364,11 @@ const AdminLocations = () => {
               name="city"
               value={form.city}
               onChange={handleChange}
-              placeholder="Hyderabad"
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
               required
             />
           </div>
 
-          {/* STATE */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               State *
@@ -391,13 +379,11 @@ const AdminLocations = () => {
               name="state"
               value={form.state}
               onChange={handleChange}
-              placeholder="Telangana"
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
               required
             />
           </div>
 
-          {/* PINCODE */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Pincode *
@@ -408,7 +394,6 @@ const AdminLocations = () => {
               name="pincode"
               value={form.pincode}
               onChange={handleChange}
-              placeholder="500081"
               maxLength={6}
               inputMode="numeric"
               pattern="\d{6}"
@@ -417,7 +402,6 @@ const AdminLocations = () => {
             />
           </div>
 
-          {/* ADDRESS */}
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Address *
@@ -427,14 +411,12 @@ const AdminLocations = () => {
               name="address"
               value={form.address}
               onChange={handleChange}
-              placeholder="Hitech City Road, Madhapur, Hyderabad"
               rows={3}
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
               required
             />
           </div>
 
-          {/* ACTIVE */}
           <div className="md:col-span-2 flex items-center gap-3">
             <input
               id="location-active"
@@ -453,7 +435,6 @@ const AdminLocations = () => {
             </label>
           </div>
 
-          {/* BUTTON */}
           <div className="md:col-span-2 flex justify-end">
             <button
               type="submit"
@@ -472,10 +453,8 @@ const AdminLocations = () => {
         </form>
       </div>
 
-      {/* SEARCH / FILTERS */}
       <div className="bg-white rounded-xl shadow p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* SEARCH */}
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
 
@@ -487,7 +466,6 @@ const AdminLocations = () => {
             />
           </div>
 
-          {/* CITY */}
           <input
             value={city}
             onChange={handleCityChange}
@@ -495,7 +473,6 @@ const AdminLocations = () => {
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
-          {/* ACTIVE */}
           <select
             value={isActive}
             onChange={handleActiveChange}
@@ -506,7 +483,6 @@ const AdminLocations = () => {
             <option value="false">Inactive Only</option>
           </select>
 
-          {/* SORT */}
           <select
             defaultValue="latest"
             onChange={handleSortChange}
@@ -530,7 +506,6 @@ const AdminLocations = () => {
         </div>
       </div>
 
-      {/* LOCATION LIST */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
@@ -547,14 +522,12 @@ const AdminLocations = () => {
           </div>
         </div>
 
-        {/* LOADING */}
         {loading && (
           <div className="p-10 text-center text-gray-500">
             Loading locations...
           </div>
         )}
 
-        {/* EMPTY */}
         {!loading && locations.length === 0 && (
           <div className="p-12 text-center">
             <FaMapMarkerAlt className="mx-auto text-5xl text-gray-300 mb-4" />
@@ -569,7 +542,6 @@ const AdminLocations = () => {
           </div>
         )}
 
-        {/* TABLE */}
         {!loading && locations.length > 0 && (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -604,7 +576,6 @@ const AdminLocations = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {locations.map((location) => (
                   <tr key={location.id} className="hover:bg-gray-50">
-                    {/* LOCATION */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -623,22 +594,18 @@ const AdminLocations = () => {
                       </div>
                     </td>
 
-                    {/* CITY */}
                     <td className="px-6 py-4 text-sm text-gray-700">
                       {location.city}
                     </td>
 
-                    {/* STATE */}
                     <td className="px-6 py-4 text-sm text-gray-700">
                       {location.state}
                     </td>
 
-                    {/* PINCODE */}
                     <td className="px-6 py-4 text-sm text-gray-700">
                       {location.pincode}
                     </td>
 
-                    {/* STATUS */}
                     <td className="px-6 py-4">
                       {location.isActive ? (
                         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
@@ -653,10 +620,8 @@ const AdminLocations = () => {
                       )}
                     </td>
 
-                    {/* ACTIONS */}
                     <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
-                        {/* EDIT */}
                         <button
                           type="button"
                           onClick={() => handleEdit(location)}
@@ -666,7 +631,6 @@ const AdminLocations = () => {
                           <FaEdit />
                         </button>
 
-                        {/* ACTIVATE / DEACTIVATE */}
                         <button
                           type="button"
                           onClick={() => handleToggleStatus(location)}
@@ -692,7 +656,6 @@ const AdminLocations = () => {
           </div>
         )}
 
-        {/* PAGINATION */}
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-4 p-6 border-t border-gray-200">
             <button

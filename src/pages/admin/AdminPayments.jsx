@@ -135,12 +135,6 @@ const AdminPaymentsPage = () => {
     }
   };
 
-  /*
-   * Statistics are calculated only from the currently loaded page.
-   *
-   * This keeps the existing dashboard behavior without adding
-   * another backend statistics endpoint at this stage.
-   */
   const successfulPayments = payments.filter(
     (payment) => payment.status === "SUCCESS"
   );
@@ -219,7 +213,6 @@ const AdminPaymentsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
           <div className="flex items-center gap-3">
@@ -247,7 +240,6 @@ const AdminPaymentsPage = () => {
         </button>
       </div>
 
-      {/* Statistics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div className="bg-white rounded-xl shadow-sm p-5">
           <p className="text-sm text-gray-500">Total Payments</p>
@@ -292,10 +284,8 @@ const AdminPaymentsPage = () => {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
 
@@ -308,7 +298,6 @@ const AdminPaymentsPage = () => {
             />
           </div>
 
-          {/* Status */}
           <select
             value={statusFilter}
             onChange={handleStatusChange}
@@ -321,7 +310,6 @@ const AdminPaymentsPage = () => {
             <option value="REFUNDED">Refunded</option>
           </select>
 
-          {/* Payment Method */}
           <select
             value={paymentMethodFilter}
             onChange={handlePaymentMethodChange}
@@ -331,7 +319,6 @@ const AdminPaymentsPage = () => {
             <option value="RAZORPAY">Razorpay</option>
           </select>
 
-          {/* Sort */}
           <select
             defaultValue="latest"
             onChange={handleSortChange}
@@ -352,7 +339,6 @@ const AdminPaymentsPage = () => {
         </div>
       </div>
 
-      {/* Payment Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
@@ -453,7 +439,6 @@ const AdminPaymentsPage = () => {
         )}
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-4 mt-6">
           <button
