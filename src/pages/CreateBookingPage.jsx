@@ -354,7 +354,7 @@ const CreateBookingPage = () => {
         </div>
       </main>
 
-      <Footer />
+    
     </PageShell>
   );
 };
@@ -409,7 +409,9 @@ const PageShell = ({ children }) => (
                   from-emerald-50 via-white to-green-50"
   >
     <Navbar />
+
     {children}
+
     <Footer />
   </div>
 );

@@ -139,15 +139,24 @@ const DashboardOverview = () => {
       {
         data: [
           bookings.filter((b) => b.status === "PENDING").length,
-
           bookings.filter((b) => b.status === "CONFIRMED").length,
-
           bookings.filter((b) => b.status === "ACTIVE").length,
-
           bookings.filter((b) => b.status === "COMPLETED").length,
-
           bookings.filter((b) => b.status === "CANCELLED").length,
         ],
+
+        backgroundColor: [
+          "#F59E0B",
+          "#3B82F6",
+          "#8B5CF6",
+          "#10B981",
+          "#EF4444",
+        ],
+
+        borderColor: "#FFFFFF",
+        borderWidth: 2,
+
+        hoverOffset: 8,
       },
     ],
   };
@@ -168,16 +177,40 @@ const DashboardOverview = () => {
 
         data: [
           cars.filter((c) => c.status === "AVAILABLE").length,
-
           cars.filter((c) => c.status === "BOOKED").length,
-
           cars.filter((c) => c.status === "IN_USE").length,
-
           cars.filter((c) => c.status === "CHARGING").length,
-
           cars.filter((c) => c.status === "MAINTENANCE").length,
-
           cars.filter((c) => c.status === "INACTIVE").length,
+        ],
+
+        backgroundColor: [
+          "#10B981",
+          "#3B82F6",
+          "#8B5CF6",
+          "#06B6D4",
+          "#F59E0B",
+          "#6B7280",
+        ],
+
+        borderColor: [
+          "#059669",
+          "#2563EB",
+          "#7C3AED",
+          "#0891B2",
+          "#D97706",
+          "#4B5563",
+        ],
+
+        borderWidth: 1,
+        borderRadius: 8,
+        hoverBackgroundColor: [
+          "#34D399",
+          "#60A5FA",
+          "#A78BFA",
+          "#22D3EE",
+          "#FBBF24",
+          "#9CA3AF",
         ],
       },
     ],
@@ -269,7 +302,6 @@ const DashboardOverview = () => {
             data={carStatusData}
             options={{
               responsive: true,
-
               plugins: {
                 legend: {
                   display: false,

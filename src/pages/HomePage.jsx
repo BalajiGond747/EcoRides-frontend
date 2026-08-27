@@ -447,26 +447,100 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8">
-        <div className="grid overflow-hidden rounded-3xl border border-emerald-400/15 bg-emerald-950/70 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="group border-emerald-400/10 p-6 transition-all hover:bg-emerald-500/[.05] lg:border-r lg:last:border-r-0"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 transition-all group-hover:bg-emerald-500 group-hover:text-white">
-                {feature.icon}
+      {coupons.length > 0 && (
+        <section className="border-b border-emerald-900/60 bg-[#020B08] py-14">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+            <div className="mb-8 flex items-end justify-between gap-5">
+              <div>
+                <span className="text-xs font-black uppercase tracking-[.2em] text-emerald-400">
+                  Special Offers
+                </span>
+                <h2 className="mt-2 text-2xl font-black sm:text-3xl">
+                  Save on your next ride
+                </h2>
+                <p className="mt-2 text-sm text-emerald-100/55 sm:text-base">
+                  Use an available EcoRides coupon when you book.
+                </p>
               </div>
 
-              <h3 className="mt-4 font-black">{feature.title}</h3>
-
-              <p className="mt-2 text-sm leading-6 text-emerald-100/55">
-                {feature.description}
-              </p>
+              <Link
+                to="/cars"
+                className="hidden items-center gap-2 text-sm font-bold text-emerald-400 transition hover:text-emerald-300 sm:flex"
+              >
+                Browse Cars
+                <ChevronRight className="h-4 w-4" />
+              </Link>
             </div>
-          ))}
-        </div>
-      </section>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {coupons.map((coupon) => {
+                const isPercentage = coupon.type === "PERCENTAGE";
+                const value = Number(coupon.value || 0);
+
+                return (
+                  <div
+                    key={coupon.code}
+                    className="group rounded-2xl border border-emerald-400/15 bg-emerald-950/60 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-emerald-900/60"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
+                          <Tag className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-wider text-emerald-300/60">
+                            Coupon
+                          </p>
+                          <p className="mt-0.5 text-lg font-black text-white">
+                            {coupon.code}
+                          </p>
+                        </div>
+                      </div>
+
+                      <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-black text-emerald-300">
+                        {isPercentage
+                          ? `${value}% OFF`
+                          : `₹${value.toLocaleString("en-IN")} OFF`}
+                      </span>
+                    </div>
+
+                    {coupon.expiryDate && (
+                      <p className="mt-4 text-xs text-emerald-100/45">
+                        Valid until{" "}
+                        {new Date(
+                          `${coupon.expiryDate}T00:00:00`
+                        ).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    )}
+
+                    <Link
+                      to="/cars"
+                      className="mt-4 inline-flex items-center gap-1 text-xs font-black text-emerald-400 transition group-hover:text-emerald-300"
+                    >
+                      Use when booking
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-5 sm:hidden">
+              <Link
+                to="/cars"
+                className="inline-flex items-center gap-2 text-sm font-bold text-emerald-400"
+              >
+                Browse Cars
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="border-y border-emerald-900/60 bg-[#03110D] py-20">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -636,100 +710,26 @@ const HomePage = () => {
         </div>
       </section>
 
-      {coupons.length > 0 && (
-        <section className="border-b border-emerald-900/60 bg-[#020B08] py-14">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-            <div className="mb-8 flex items-end justify-between gap-5">
-              <div>
-                <span className="text-xs font-black uppercase tracking-[.2em] text-emerald-400">
-                  Special Offers
-                </span>
-                <h2 className="mt-2 text-2xl font-black sm:text-3xl">
-                  Save on your next ride
-                </h2>
-                <p className="mt-2 text-sm text-emerald-100/55 sm:text-base">
-                  Use an available EcoRides coupon when you book.
-                </p>
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8">
+        <div className="grid overflow-hidden rounded-3xl border border-emerald-400/15 bg-emerald-950/70 sm:grid-cols-2 lg:grid-cols-4">
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className="group border-emerald-400/10 p-6 transition-all hover:bg-emerald-500/[.05] lg:border-r lg:last:border-r-0"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 transition-all group-hover:bg-emerald-500 group-hover:text-white">
+                {feature.icon}
               </div>
 
-              <Link
-                to="/cars"
-                className="hidden items-center gap-2 text-sm font-bold text-emerald-400 transition hover:text-emerald-300 sm:flex"
-              >
-                Browse Cars
-                <ChevronRight className="h-4 w-4" />
-              </Link>
+              <h3 className="mt-4 font-black">{feature.title}</h3>
+
+              <p className="mt-2 text-sm leading-6 text-emerald-100/55">
+                {feature.description}
+              </p>
             </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              {coupons.map((coupon) => {
-                const isPercentage = coupon.type === "PERCENTAGE";
-                const value = Number(coupon.value || 0);
-
-                return (
-                  <div
-                    key={coupon.code}
-                    className="group rounded-2xl border border-emerald-400/15 bg-emerald-950/60 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-emerald-900/60"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
-                          <Tag className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold uppercase tracking-wider text-emerald-300/60">
-                            Coupon
-                          </p>
-                          <p className="mt-0.5 text-lg font-black text-white">
-                            {coupon.code}
-                          </p>
-                        </div>
-                      </div>
-
-                      <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-black text-emerald-300">
-                        {isPercentage
-                          ? `${value}% OFF`
-                          : `₹${value.toLocaleString("en-IN")} OFF`}
-                      </span>
-                    </div>
-
-                    {coupon.expiryDate && (
-                      <p className="mt-4 text-xs text-emerald-100/45">
-                        Valid until{" "}
-                        {new Date(
-                          `${coupon.expiryDate}T00:00:00`
-                        ).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </p>
-                    )}
-
-                    <Link
-                      to="/cars"
-                      className="mt-4 inline-flex items-center gap-1 text-xs font-black text-emerald-400 transition group-hover:text-emerald-300"
-                    >
-                      Use when booking
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="mt-5 sm:hidden">
-              <Link
-                to="/cars"
-                className="inline-flex items-center gap-2 text-sm font-bold text-emerald-400"
-              >
-                Browse Cars
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
+          ))}
+        </div>
+      </section>
 
       <section className="bg-emerald-950 py-20 lg:py-24">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
