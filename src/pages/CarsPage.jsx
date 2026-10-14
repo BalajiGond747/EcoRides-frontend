@@ -15,6 +15,21 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import api from "../services/api";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return "";
+
+  if (imageUrl.startsWith("http://localhost:8080")) {
+    return imageUrl.replace("http://localhost:8080", API_BASE_URL);
+  }
+
+  if (/^https?:\/\//i.test(imageUrl)) return imageUrl;
+
+  return `${API_BASE_URL}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
+};
+
 const CarsPage = () => {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +87,6 @@ const CarsPage = () => {
       setTotalPages(paginationData?.totalPages || 0);
       setTotalElements(paginationData?.totalElements || 0);
 
-      
       if (page === 0 && !search.trim() && category === "ALL") {
         const values = (paginationData?.content || [])
           .map((car) => car.category)
@@ -326,18 +340,14 @@ const CarCard = ({ car }) => {
       >
         {car.imageUrl ? (
           <img
-          src={
-            car.imageUrl?.startsWith("http")
-              ? car.imageUrl
-              : `http://localhost:8080${car.imageUrl}`
-          }
-          alt={car.name}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
-            e.currentTarget.nextElementSibling.style.display = "flex";
-          }}
-        />
+            src={getImageUrl(car.imageUrl)}
+            alt={car.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              e.currentTarget.nextElementSibling.style.display = "flex";
+            }}
+          />
         ) : null}
 
         <div

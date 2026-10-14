@@ -21,18 +21,22 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import api from "../services/api";
 
-const IMAGE_BASE_URL = "http://localhost:8080";
+const IMAGE_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 const getImageUrl = (imageUrl) => {
-  if (!imageUrl) {
-    return "";
+  if (!imageUrl) return "";
+
+  // Convert image URLs saved with the old local backend address.
+  if (imageUrl.startsWith("http://localhost:8080")) {
+    return imageUrl.replace("http://localhost:8080", IMAGE_BASE_URL);
   }
 
-  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-    return imageUrl;
-  }
+  // Keep other absolute URLs unchanged.
+  if (/^https?:\/\//i.test(imageUrl)) return imageUrl;
 
-  return `${IMAGE_BASE_URL}${imageUrl}`;
+  // Resolve relative paths against the configured backend URL.
+  return `${IMAGE_BASE_URL}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
 };
 
 const HomePage = () => {
