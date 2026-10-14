@@ -331,14 +331,21 @@ const AdminCars = () => {
     }
   };
 
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
   const getImageUrl = (imageUrl) => {
     if (!imageUrl) return "";
+
+    if (imageUrl.startsWith("http://localhost:8080")) {
+      return imageUrl.replace("http://localhost:8080", API_BASE_URL);
+    }
 
     if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
       return imageUrl;
     }
 
-    return `http://localhost:8080${imageUrl}`;
+    return `${API_BASE_URL}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
   };
 
   return (
