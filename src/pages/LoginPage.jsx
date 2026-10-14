@@ -8,6 +8,9 @@ import Footer from "../components/Footer";
 import api from "../services/api";
 import { setToken, setCurrentUser } from "../services/auth";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
 const LoginPage = () => {
   const navigate = useNavigate();
 
@@ -214,7 +217,7 @@ const LoginPage = () => {
             </div>
 
             <a
-              href="http://localhost:8080/oauth2/authorization/google"
+             href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"}/oauth2/authorization/google`}
               className="w-full border border-emerald-400
              py-3 rounded-full
              font-semibold text-gray-700
